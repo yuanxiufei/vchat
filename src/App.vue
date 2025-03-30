@@ -1,6 +1,10 @@
 <template>
-    <h1>💖 Hello World!</h1>
-    <p  class="text-blue-600 md:text-green-600" >Welcome to your Electron application.</p>
+    <div class="flex items-center justify-between h-screen">
+      <div class="w-[300px] h-full bg-gray-200 border-r border-gray-300">sidebar</div>
+      <div class="h-full flex-1">
+        content
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
