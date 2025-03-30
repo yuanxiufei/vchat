@@ -2,6 +2,8 @@ import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig } from 'vite';
 import { pluginExposeRenderer } from './vite.base.config';
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from 'tailwindcss'
+import autoprefixer from 'autoprefixer'
 // https://vitejs.dev/config
 export default defineConfig((env) => {
   const forgeEnv = env as ConfigEnv<'renderer'>;
@@ -16,6 +18,14 @@ export default defineConfig((env) => {
       outDir: `.vite/renderer/${name}`,
     },
     plugins: [vue(), pluginExposeRenderer(name)],
+    css: {
+      postcss: {
+        plugins: [
+          tailwindcss(),
+          autoprefixer(),
+        ],
+      },
+    },
     resolve: {
       preserveSymlinks: true,
     },

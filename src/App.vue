@@ -1,6 +1,6 @@
 <template>
     <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
+    <p  class="text-blue-600 md:text-green-600" >Welcome to your Electron application.</p>
 </template>
 
 <script setup lang="ts">
