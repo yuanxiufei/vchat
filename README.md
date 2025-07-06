@@ -24,3 +24,7 @@
 - DeepSeek
 - 文心一言
 - 通义千问
+
+**安装依赖**
+- pnpm install
+- pnpm install electron --force  如果electron有问题请用此命令
