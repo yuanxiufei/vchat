@@ -33,7 +33,7 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "autoprefixer": "^10.4.21",
-    "electron": "^35.6.0",
+    "electron": "^35.7.2",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.31.0",
     "postcss": "^8.5.3",
