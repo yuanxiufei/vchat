@@ -1,0 +1,59 @@
+@import './tailwind.css';
+@import 'katex/dist/katex.min.css';
+
+html, body, #app { height: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; background-color: #F5F5F7; color: #111827; }
+
+@utility glass {
+  backdrop-filter: blur(12px);
+  background-color: rgba(255,255,255,0.65);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+@utility surface {
+  background-color: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+@utility btn-primary {
+  background-color: #34C759;
+  color: #ffffff;
+  border-radius: 9999px;
+  transition: background-color .15s ease;
+}
+.btn-primary:hover { background-color: #2EB94F; }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+@utility row {
+  border-radius: .75rem;
+  transition: background-color .15s ease;
+}
+.row:hover { background-color: rgba(0,0,0,0.04); }
+
+/* 自定义滚动条（更贴近 macOS 风格） */
+@utility sidebar-scroll { scrollbar-width: thin; }
+:where(.sidebar-scroll){ scrollbar-color: rgba(0,0,0,0.30) transparent; }
+:where(.sidebar-scroll)::-webkit-scrollbar{ width: 6px; height: 6px; }
+:where(.sidebar-scroll)::-webkit-scrollbar-track{ background: transparent; }
+:where(.sidebar-scroll)::-webkit-scrollbar-thumb{
+  background-color: rgba(0,0,0,0.28);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+:where(.sidebar-scroll):hover::-webkit-scrollbar-thumb{ background-color: rgba(0,0,0,0.45); }
+
+/* 主内容滚动条（更明显的可见度） */
+@utility content-scroll { scrollbar-width: thin; }
+:where(.content-scroll){ scrollbar-color: rgba(0,0,0,0.35) transparent; overscroll-behavior: contain; }
+:where(.content-scroll)::-webkit-scrollbar{ width: 10px; height: 10px; }
+:where(.content-scroll)::-webkit-scrollbar-track{ background: transparent; }
+:where(.content-scroll)::-webkit-scrollbar-thumb{
+  background-color: rgba(0,0,0,0.30);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+:where(.content-scroll):hover::-webkit-scrollbar-thumb{ background-color: rgba(0,0,0,0.45); }

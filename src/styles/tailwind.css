@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@config "../../tailwind.config.js";
+
+@utility scrollbar-thin {
+  &::-webkit-scrollbar { width: 6px; height: 6px }
+  scrollbar-width: thin;
+}
+
+@utility scrollbar-thumb-gray-400 {
+  &::-webkit-scrollbar-thumb { background-color: theme(colors.gray.400); border-radius: 9999px }
+  scrollbar-color: theme(colors.gray.400) transparent;
+}
+
+@utility scrollbar-track-gray-100 {
+  &::-webkit-scrollbar-track { background-color: theme(colors.gray.100) }
+}
