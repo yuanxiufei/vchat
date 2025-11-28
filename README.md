@@ -111,7 +111,7 @@ npm run start
 
 - 请扫码联系作者加入技术交流群：
 
-![微信二维码](src/styles/images/weixin/weixin.jpg)
+<img src="src/styles/images/weixin/weixin.jpg" alt="微信二维码" width="200" />
 
 ## 密钥管理与安全
 
