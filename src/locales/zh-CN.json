@@ -9,6 +9,7 @@
   "input_placeholder": "请输入内容",
   "send": "发送",
   "select_model": "选择模型",
+  "no_models_tip": "暂无可用模型，请前往设置添加。",
   "model_settings": "模型设置",
   "add": "新增",
   "add_model_config": "新增模型配置",

@@ -906,10 +906,8 @@ async function resetGeneral() {
 // 保存模型设置（providers）
 async function saveModels() {
   const safeProviders = JSON.parse(JSON.stringify(providers.value));
-  const next = await (window as any).electronAPI.setConfig({
-    providers: safeProviders,
-  });
-  providers.value = normalizeProviders(next.providers);
+  await (window as any).electronAPI.setConfig({ providers: safeProviders });
+  providers.value = normalizeProviders(safeProviders);
 }
 // 重置模型设置并保存
 async function resetModels() {
@@ -1035,6 +1033,7 @@ async function addProvider() {
   }
   providers.value = { ...p };
   await saveModels();
+  await load();
   showAdd.value = false;
   form.value = {};
 }

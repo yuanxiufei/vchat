@@ -3,16 +3,27 @@
   <div class="w-full h-full flex flex-col overflow-hidden">
     <div v-if="conversation" class="glass rounded-xl px-4 py-4  flex items-center justify-between">
       <h3 class="font-semibold text-gray-900">{{ conversation?.title }}</h3>
-      <span class="text-xs text-gray-500">{{ dayjs(conversation?.createdAt).format("YYYY-MM-DD HH:mm") }}</span>
+      <div class="flex items-center gap-3">
+        <template v-if="availableProviders.length">
+          <select v-model="currentProviderName" @change="switchProvider" class="h-8 w-40 bg-white border border-gray-200 rounded-md px-2 text-sm">
+            <option v-for="p in availableProviders" :key="p.name" :value="p.name">{{ p.title || p.name }}</option>
+          </select>
+        </template>
+        <span class="text-xs text-gray-500">{{ dayjs(conversation?.createdAt).format("YYYY-MM-DD HH:mm") }}</span>
+      </div>
     </div>
     <div class="flex-1 min-h-0 p-4 overflow-y-auto content-scroll pr-2">
       <MessageList :messages="filterMessages" ref="messageListRef" />
+    </div>
+    <div v-if="!canSend" class="mb-2 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl px-3 py-2 flex items-center justify-between">
+      <div class="text-xs">{{ t('no_models_tip') }}</div>
+      <button class="px-2 py-1 text-xs bg-white border border-yellow-300 rounded-md hover:bg-yellow-100" @click="goSettings">{{ t('settings') }}</button>
     </div>
     <div class="mt-3">
       <MessageInput
         @send="sendNewMEssage"
         v-model="inputValue"
-        :disabled="messageStore.isMessageLoading"
+        :disabled="messageStore.isMessageLoading || !canSend"
       />
     </div>
   </div>
@@ -23,6 +34,8 @@
 // - 发送问题后会创建一个占位“答案”消息，并启动主进程生成；
 // - 监听主进程增量更新，逐步填充答案并滚动到底部。
 import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { t } from '@/locales'
+import { useRouter } from 'vue-router'
 import MessageInput from "@/components/MessageInput.vue";
 import MessageList from "../components/MessageList.vue";
 import { MessageProps, MessageListInstance,MessageStatus } from "@/types/appType";
@@ -33,6 +46,7 @@ import dayjs from "dayjs";
 import { db } from "@/data/db";
 import Stream from "node:stream";
 const route = useRoute();
+const router = useRouter();
 // 输入框内容
 const inputValue = ref("");
 // 消息列表实例引用对象节点
@@ -64,6 +78,92 @@ const initMessageId = ref(parseInt(route.query.init as string));
 const conversation = computed(() =>
   conversationStore.getConversationById(conversationId.value)
 );
+// 可选的可用 Provider 列表（读取配置校验必填字段）
+const availableProviders = ref<{name:string; title?:string; models:string[] }[]>([])
+const currentProviderName = ref('')
+async function buildAvailableProviders(){
+  const cfg:any = await (window as any).electronAPI.getConfig()
+  const pv:any = cfg?.providers || {}
+  const out:any[] = []
+  for(const name of Object.keys(pv)){
+    const v:any = pv[name] || {}
+    const base = name.split('_')[0]
+    const hasM = Array.isArray(v.models) && v.models.length>0
+    let ok = hasM
+    if(base==='qianfan'){ ok = ok && !!v.accessKey && !!v.secretKey }
+    if(base==='dashscope' || base==='openai' || base==='deepseek' || base==='claude'){ ok = ok && !!v.apiKey && !!v.baseUrl }
+    if(ok) out.push({ name, title: v.title, models: v.models })
+  }
+  availableProviders.value = out
+  currentProviderName.value = (conversation.value ? (await db.providers.where({ id: conversation.value.providerId }).first())?.name : '') || (out[0]?.name || '')
+}
+// 可发送判定（根据 Provider 配置是否完整）
+const canSend = ref(false)
+const effectiveProviderName = ref<string>('')
+async function refreshCanSend(){
+  const conv = conversation.value
+  if(!conv){ canSend.value = false; effectiveProviderName.value=''; return }
+  const provider = await db.providers.where({ id: conv.providerId }).first()
+  if(!provider){ canSend.value = false; effectiveProviderName.value=''; return }
+  const name = provider.name || ''
+  const cfg:any = await (window as any).electronAPI.getConfig()
+  const all:any = (cfg?.providers || {})
+  const cur:any = all[name] || {}
+  const base = name.split('_')[0]
+  const hasModels = Array.isArray(cur.models) ? cur.models.length>0 : (Array.isArray(provider.models) && provider.models.length>0)
+  const isQianfan = name.startsWith('qianfan')
+  const isDashscope = name.startsWith('dashscope')
+  const isOpenai = name.startsWith('openai')
+  const isDeepseek = name.startsWith('deepseek')
+  const isClaude = name.startsWith('claude')
+  let ok = hasModels
+  if(isQianfan){ ok = ok && !!cur.accessKey && !!cur.secretKey }
+  if(isDashscope || isOpenai || isDeepseek || isClaude){ ok = ok && !!cur.apiKey && !!cur.baseUrl }
+  let eff = ''
+  if(ok){ eff = name }
+  if(!ok){
+    for(const k of Object.keys(all)){
+      if(k===name) continue
+      if(k.startsWith(base + '_')){
+        const v:any = all[k] || {}
+        const mOk = Array.isArray(v.models) && v.models.length>0
+        let c = mOk
+        if(base==='qianfan'){ c = c && !!v.accessKey && !!v.secretKey }
+        if(base==='dashscope' || base==='openai' || base==='deepseek' || base==='claude'){ c = c && !!v.apiKey && !!v.baseUrl }
+        if(c){ eff = k; break }
+      }
+    }
+  }
+  effectiveProviderName.value = eff
+  canSend.value = !!eff
+  // 若当前选中模型不属于有效提供器，自动切换为其第一个模型
+  if(eff){
+    const ev:any = all[eff] || {}
+    const evModels:string[] = Array.isArray(ev.models) ? ev.models : []
+    if(evModels.length){
+      const curSel = conversation.value?.selectedModel || ''
+      if(!evModels.includes(curSel)){
+        const first = evModels[0]
+        await db.conversations.update(conversationId.value, { selectedModel: first, updatedAt: new Date().toISOString() })
+        const it = conversationStore.items.find(i=>i.id===conversationId.value)
+        if(it){ it.selectedModel = first }
+      }
+    }
+  }
+}
+async function switchProvider(){
+  const name = currentProviderName.value
+  const p = await db.providers.where({ name }).first()
+  if(!p) return
+  const cfg:any = await (window as any).electronAPI.getConfig()
+  const v:any = (cfg?.providers || {})[name] || {}
+  const firstModel = Array.isArray(v.models) && v.models.length ? v.models[0] : (Array.isArray(p.models) && p.models.length? p.models[0]: conversation.value?.selectedModel)
+  await db.conversations.update(conversationId.value, { providerId: p.id, selectedModel: firstModel, updatedAt: new Date().toISOString() })
+  const it = conversationStore.items.find(i=>i.id===conversationId.value)
+  if(it){ it.providerId = p.id; it.selectedModel = firstModel }
+  await refreshCanSend()
+}
+const goSettings = ()=> router.push('/settings')
 // 最后一条问题消息
 const lastQuestion = computed(() =>
   messageStore.getLastQuestion(conversationId.value)
@@ -145,7 +245,7 @@ const creatingInitialMessage = async () => {
     if (provider) {
       window.electronAPI.startChat({
         messageId: newMessageId,
-        providerName: provider.name,
+        providerName: effectiveProviderName.value || provider.name,
         selectedModel: conversation.value.selectedModel,
         messages: sendMessage.value,
       });
@@ -172,6 +272,8 @@ onMounted(async () => {
   await messageStore.fetchMessagesByConversationId(conversationId.value);
   // 滚动到消息列表底部
   await messageScrollToBottom();
+  await buildAvailableProviders()
+  await refreshCanSend()
   // 如果有初始化消息id，创建初始消息
   if (initMessageId.value) {
     // 初始化消息id 为问题消息时, 创建初始消息
@@ -196,5 +298,7 @@ onMounted(async () => {
       streamContent = "";
     }
   });
+  // 配置更新时重新判定发送能力
+  ;(window as any).electronAPI.onConfigUpdated(async()=>{ await buildAvailableProviders(); await refreshCanSend() })
 });
 </script>

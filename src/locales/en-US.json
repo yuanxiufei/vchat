@@ -9,6 +9,7 @@
   "input_placeholder": "Type a message",
   "send": "Send",
   "select_model": "Select a model",
+  "no_models_tip": "No models available. Please add models in Settings.",
   "model_settings": "Model Settings",
   "add": "Add",
   "add_model_config": "Add Model Configuration",
@@ -54,11 +55,11 @@
   "docs_qianfan": "Qianfan (ERNIE) Configuration",
   "docs_dashscope": "DashScope (Tongyi) Configuration",
   "docs_openai_compat": "OpenAI Compatibility Mode",
-  "app_title": "Smart Chat"
-  , "delete": "Delete",
-  "confirm_delete": "Delete this conversation? This cannot be undone"
-  , "pin": "Pin",
-  , "rename": "Rename"
-  , "unpin": "Unpin",
-  , "pinned": "Pinned"
+  "app_title": "Smart Chat",
+  "delete": "Delete",
+  "confirm_delete": "Delete this conversation? This cannot be undone",
+  "pin": "Pin",
+  "rename": "Rename",
+  "unpin": "Unpin",
+  "pinned": "Pinned"
 }

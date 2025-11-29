@@ -1,6 +1,7 @@
 <!-- 首页：选择模型并输入问题，创建新对话后跳转到会话页 -->
 <template>
      <div class="w-[80%] mx-auto h-full">
+        
         <div class="flex items-center h-[85%]">
           <ProviderSelect :items="providers" v-model="currentProvider" />
         </div>
@@ -13,12 +14,12 @@
 // 说明：
 // - 从配置构建 Provider 列表（含别名）写入本地数据库，供选择器展示；
 // - 发送后创建对话与首条问题消息，并跳转到会话页进行流式生成。
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import ProviderSelect from '@/components/ProviderSelect.vue'
 import MessageInput from '@/components/MessageInput.vue'
 import { ProviderProps } from '@/types/appType'
+import { t } from '@/locales'
 import { db, initProviders } from '@/data/db'
-import { computed } from '@vue/reactivity';
 import { useRouter } from 'vue-router';
 import { useConversationStore } from '@/stores/conversation'
 const router = useRouter()
@@ -29,6 +30,8 @@ const conversationStore = useConversationStore()
 const currentProvider = ref('')
 //  输入框内容
 const inputText = ref('')
+const noModels = computed(()=> providers.value.every(p=>!Array.isArray(p.models) || p.models.length===0))
+const goSettings = ()=> router.push('/settings')
 
 // 根据配置构建/更新 Provider 列表到本地数据库
 async function buildProviders(){
@@ -98,6 +101,7 @@ async function buildProviders(){
 // 初始化 Provider 列表，并订阅配置更新
 onMounted(async()=>{
   await buildProviders()
+  if(noModels.value) currentProvider.value = ''
   ;(window as any).electronAPI.onConfigUpdated(async()=>{ await buildProviders() })
 })
 //模型信息动态获取

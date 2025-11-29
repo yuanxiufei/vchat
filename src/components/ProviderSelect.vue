@@ -2,12 +2,12 @@
 <template>
     <div class="provider-select w-full">
         <SelectRoot v-model="currentModel">
-            <SelectTrigger class="flex w-full items-center justify-between rounded-lg py-2 px-3 bg-white shadow-sm border border-gray-200 outline-none data-[placeholder]:text-gray-400">
+            <SelectTrigger class="flex w-full items-center justify-between rounded-lg py-2 px-3 bg-white shadow-sm border border-gray-200 outline-none data-[placeholder]:text-gray-400 cursor-pointer">
                 <SelectValue :placeholder="t('select_model')" />
                 <Icon icon="radix-icons:chevron-down" class="h-5 w-5" />
             </SelectTrigger>
             <SelectPortal>
-                <SelectContent class="bg-white rounded-xl shadow z-[1000] border border-gray-100">
+                <SelectContent v-if="filteredItems.length" class="bg-white rounded-xl shadow z-[1000] border border-gray-100">
                     <SelectViewport class="p-2">
                         <div v-for="provider in filteredItems" :key="provider.id">
                           <SelectLabel class="flex items-center px-6 h-7 text-gray-500 cursor-pointer">
@@ -34,6 +34,10 @@
                 </SelectContent>
             </SelectPortal>
         </SelectRoot>
+        <div v-if="!filteredItems.length" class="text-xs text-gray-600 mt-2">
+          {{ t('no_models_tip') }}
+          <button type="button" class="ml-1 text-green-700 hover:text-black underline cursor-pointer" @click="goSettings">{{ t('settings') }}</button>
+        </div>
     </div>
 </template>
 
@@ -43,6 +47,7 @@
 // - 仅展示包含模型的 Provider；
 // - v-model 输出格式为 "providerId/model"，供首页解析。
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { ProviderProps } from '@/types/appType'
 import {
     SelectContent,
@@ -66,4 +71,7 @@ import { t } from '@/locales'
 const props = defineProps<{ items: ProviderProps[] }>()
 const currentModel = defineModel<string>({ default: '' })
 const filteredItems = computed(()=> (props.items || []).filter(p=>Array.isArray(p.models) && p.models.length))
+
+const router = useRouter()
+function goSettings(){ router.push('/settings') }
 </script>
