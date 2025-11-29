@@ -2,14 +2,10 @@
 <template>
   <div class="w-full h-full flex flex-col overflow-hidden">
     <div v-if="conversation" class="glass rounded-xl px-4 py-4  flex items-center justify-between">
-      <h3 class="font-semibold text-gray-900">{{ conversation?.title }}</h3>
-      <div class="flex items-center gap-3">
-        <template v-if="availableProviders.length">
-          <select v-model="currentProviderName" @change="switchProvider" class="h-8 w-40 bg-white border border-gray-200 rounded-md px-2 text-sm">
-            <option v-for="p in availableProviders" :key="p.name" :value="p.name">{{ p.title || p.name }}</option>
-          </select>
-        </template>
-        <span class="text-xs text-gray-500">{{ dayjs(conversation?.createdAt).format("YYYY-MM-DD HH:mm") }}</span>
+      <h3 class="font-semibold text-gray-900 flex-1 min-w-0 truncate">{{ conversation?.title }}</h3>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <ProviderSelect v-if="providerItems.length" v-model="currentPick" :items="providerItems" />
+        <span class="whitespace-nowrap text-sm text-gray-700 ml-2 flex-shrink-0">{{ dayjs(conversation?.createdAt).format("YYYY-MM-DD HH:mm") }}</span>
       </div>
     </div>
     <div class="flex-1 min-h-0 p-4 overflow-y-auto content-scroll pr-2">
@@ -38,7 +34,8 @@ import { t } from '@/locales'
 import { useRouter } from 'vue-router'
 import MessageInput from "@/components/MessageInput.vue";
 import MessageList from "../components/MessageList.vue";
-import { MessageProps, MessageListInstance,MessageStatus } from "@/types/appType";
+import ProviderSelect from '@/components/ProviderSelect.vue'
+import { MessageProps, MessageListInstance,MessageStatus, ProviderProps } from "@/types/appType";
 import { useConversationStore } from "@/stores/conversation";
 import { useMessageStore } from "@/stores/message";
 import { useRoute } from "vue-router";
@@ -80,7 +77,8 @@ const conversation = computed(() =>
 );
 // 可选的可用 Provider 列表（读取配置校验必填字段）
 const availableProviders = ref<{name:string; title?:string; models:string[] }[]>([])
-const currentProviderName = ref('')
+const providerItems = ref<ProviderProps[]>([])
+const currentPick = ref('') // 格式："providerId/model"
 async function buildAvailableProviders(){
   const cfg:any = await (window as any).electronAPI.getConfig()
   const pv:any = cfg?.providers || {}
@@ -95,7 +93,15 @@ async function buildAvailableProviders(){
     if(ok) out.push({ name, title: v.title, models: v.models })
   }
   availableProviders.value = out
-  currentProviderName.value = (conversation.value ? (await db.providers.where({ id: conversation.value.providerId }).first())?.name : '') || (out[0]?.name || '')
+  const list = await db.providers.toArray()
+  // 合并配置中的 models 到 DB 项
+  providerItems.value = list.map((it:any)=>{
+    const v:any = pv[it.name] || {}
+    return { ...it, models: Array.isArray(v.models)? v.models: (Array.isArray(it.models)? it.models: []) }
+  }).filter((p:any)=> Array.isArray(p.models) && p.models.length>0)
+  const curProv = conversation.value ? (await db.providers.where({ id: conversation.value.providerId }).first()) : null
+  const curModel = conversation.value?.selectedModel || ''
+  currentPick.value = curProv && curModel ? `${curProv.id}/${curModel}` : (providerItems.value[0] ? `${providerItems.value[0].id}/${providerItems.value[0].models[0]}` : '')
 }
 // 可发送判定（根据 Provider 配置是否完整）
 const canSend = ref(false)
@@ -151,18 +157,17 @@ async function refreshCanSend(){
     }
   }
 }
-async function switchProvider(){
-  const name = currentProviderName.value
-  const p = await db.providers.where({ name }).first()
+watch(currentPick, async (val)=>{
+  if(!val) return
+  const [pidStr, model] = String(val).split('/')
+  const pid = parseInt(pidStr)
+  const p = await db.providers.where({ id: pid }).first()
   if(!p) return
-  const cfg:any = await (window as any).electronAPI.getConfig()
-  const v:any = (cfg?.providers || {})[name] || {}
-  const firstModel = Array.isArray(v.models) && v.models.length ? v.models[0] : (Array.isArray(p.models) && p.models.length? p.models[0]: conversation.value?.selectedModel)
-  await db.conversations.update(conversationId.value, { providerId: p.id, selectedModel: firstModel, updatedAt: new Date().toISOString() })
+  await db.conversations.update(conversationId.value, { providerId: p.id, selectedModel: model, updatedAt: new Date().toISOString() })
   const it = conversationStore.items.find(i=>i.id===conversationId.value)
-  if(it){ it.providerId = p.id; it.selectedModel = firstModel }
+  if(it){ it.providerId = p.id; it.selectedModel = model }
   await refreshCanSend()
-}
+})
 const goSettings = ()=> router.push('/settings')
 // 最后一条问题消息
 const lastQuestion = computed(() =>

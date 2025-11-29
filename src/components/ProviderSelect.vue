@@ -2,13 +2,24 @@
 <template>
     <div class="provider-select w-full">
         <SelectRoot v-model="currentModel">
-            <SelectTrigger class="flex w-full items-center justify-between rounded-lg py-2 px-3 bg-white shadow-sm border border-gray-200 outline-none data-[placeholder]:text-gray-400 cursor-pointer">
+            <SelectTrigger class="flex items-center justify-between rounded-lg h-8 px-3 bg-white shadow-sm border border-gray-200 outline-none data-[placeholder]:text-gray-400 cursor-pointer min-w-[180px] max-w-[240px] text-sm truncate flex-shrink-0">
                 <SelectValue :placeholder="t('select_model')" />
                 <Icon icon="radix-icons:chevron-down" class="h-5 w-5" />
             </SelectTrigger>
             <SelectPortal>
-                <SelectContent v-if="filteredItems.length" class="bg-white rounded-xl shadow z-[1000] border border-gray-100">
-                    <SelectViewport class="p-2">
+                <SelectContent
+                  v-if="filteredItems.length"
+                  :position="'popper'"
+                  :align="'end'"
+                  :side="'bottom'"
+                  :sideOffset="8"
+                  :avoidCollisions="false"
+                  class="bg-white rounded-xl shadow z-[1000] border border-gray-100 max-h-[60vh] overflow-auto"
+                >
+                    <SelectScrollUpButton class="flex items-center justify-center h-6 text-gray-400">
+                      <Icon icon="radix-icons:chevron-up" class="h-5 w-5" />
+                    </SelectScrollUpButton>
+                    <SelectViewport class="p-2 min-w-[240px]">
                         <div v-for="provider in filteredItems" :key="provider.id">
                           <SelectLabel class="flex items-center px-6 h-7 text-gray-500 cursor-pointer">
                             <img :src="provider.avatar" :alt="provider.name" class="h-5 w-5 mr-2 rounded" />
@@ -31,6 +42,9 @@
                           <SelectSeparator class="h-[1px] my-1 bg-gray-200" />
                         </div>
                     </SelectViewport>
+                    <SelectScrollDownButton class="flex items-center justify-center h-6 text-gray-400">
+                      <Icon icon="radix-icons:chevron-down" class="h-5 w-5" />
+                    </SelectScrollDownButton>
                 </SelectContent>
             </SelectPortal>
         </SelectRoot>

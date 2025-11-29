@@ -70,10 +70,35 @@ function handleImageUpload(e: Event) {
      reader.readAsDataURL(selectedImage.value as File)
   }
 }
+async function maybeConvertIcoToPng(dataUrl: string): Promise<string> {
+  if (!dataUrl || typeof dataUrl !== 'string') return dataUrl
+  if (!/^data:image\/(x-icon|vnd\.microsoft\.icon)/i.test(dataUrl)) return dataUrl
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width || 64
+      canvas.height = img.height || 64
+      const ctx = canvas.getContext('2d')
+      if (ctx) ctx.drawImage(img, 0, 0)
+      try {
+        const png = canvas.toDataURL('image/png')
+        resolve(png)
+      } catch {
+        resolve(dataUrl)
+      }
+    }
+    img.onerror = () => resolve(dataUrl)
+    img.src = dataUrl
+  })
+}
 // 处理发送：将文本与可选图片路径一起发出，并重置输入状态
-function handleSend() {
+async function handleSend() {
   if (inputValue.value.trim() !== '') {
-    const payloadPath = (selectedImage.value as any)?.path || imagePreview.value || ''
+    let payloadPath = (selectedImage.value as any)?.path || imagePreview.value || ''
+    if (typeof payloadPath === 'string' && payloadPath.startsWith('data:')) {
+      payloadPath = await maybeConvertIcoToPng(payloadPath)
+    }
     emits('send', inputValue.value, payloadPath)
     emits('update:modelValue', '')
     inputValue.value = ''
