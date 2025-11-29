@@ -5,8 +5,22 @@
       <section
         class="col-span-12 md:col-span-12 xl:col-span-9 2xl:col-span-9 space-y-6"
       >
-        <div class="glass rounded-2xl p-6 shadow-sm">
-          <h2 class="text-lg font-semibold">{{ t("app_settings") }}</h2>
+        <div class="flex items-center gap-8 mb-4 border-b border-gray-200">
+          <button
+            class="pb-4 -mb-px text-lg font-semibold"
+            :class="activeTab==='general' ? 'text-gray-900 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-900'"
+            type="button"
+            @click="activeTab='general'"
+          >{{ t('app_settings') }}</button>
+          <button
+            class="pb-4 -mb-px text-lg font-semibold"
+            :class="activeTab==='models' ? 'text-gray-900 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-900'"
+            type="button"
+            @click="activeTab='models'"
+          >{{ t('model_settings') }}</button>
+        </div>
+        <div v-if="activeTab==='general'" class="glass rounded-2xl p-6 shadow-sm">
+          <h2 class="sr-only">{{ t("app_settings") }}</h2>
           <div class="grid grid-cols-2 gap-6 mt-4">
             <div>
               <label class="block text-sm text-gray-600 mb-2">{{
@@ -35,10 +49,18 @@
               <div class="text-xs text-gray-500 mt-1">{{ fontSize }}px</div>
             </div>
           </div>
+          <div class="flex gap-3 justify-end mt-4">
+            <button class="btn-primary px-4 py-2" @click="save">
+              {{ t("save") }}
+            </button>
+            <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" @click="reset">
+              {{ t("reset") }}
+            </button>
+          </div>
         </div>
 
-        <details class="glass p-4 rounded-xl shadow-sm self-start" open>
-          <summary class="cursor-pointer font-medium">{{ t('config_docs') }}</summary>
+        <details v-if="activeTab==='general'" class="glass p-4 rounded-xl shadow-sm self-start" open>
+          <summary class="cursor-pointer text-base font-medium text-gray-700">{{ t('config_docs') }}</summary>
           <ul class="text-sm text-gray-600 space-y-2 mt-3">
             <li><a class="hover:text-black" href="#" @click.prevent="openDoc('openai')">{{ t('docs_openai') }}</a></li>
             <li><a class="hover:text-black" href="#" @click.prevent="openDoc('deepseek')">{{ t('docs_deepseek') }}</a></li>
@@ -49,9 +71,8 @@
           </ul>
         </details>
 
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <div class="text-base font-semibold">{{ t('model_settings') }}</div>
+        <div v-if="activeTab==='models'" class="space-y-6">
+          <div class="flex items-center justify-end mb-3">
             <DialogRoot v-model:open="showAdd">
               <DialogTrigger asChild>
                 <button class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" type="button" @click="openAdd">{{ t('add') }}</button>
@@ -728,7 +749,7 @@
             </details>
           </div>
 
-        <div class="flex gap-3 justify-end mt-4">
+        <div v-if="activeTab==='models'" class="flex gap-3 justify-end mt-4">
           <button class="btn-primary px-4 py-2" @click="save">
             {{ t("save") }}
           </button>
@@ -739,16 +760,16 @@
         </div>
       </section>
 
-      <aside class="hidden lg:block lg:col-span-3 xl:col-span-3">
+      <aside v-if="activeTab==='models'" class="hidden lg:block lg:col-span-3 xl:col-span-3">
         <div class="glass rounded-2xl p-6 space-y-4 h-full">
           <details class="glass p-4 rounded-xl shadow-sm self-start" open>
             <summary class="cursor-pointer font-medium">{{ t('quick_nav') }}</summary>
             <ul class="text-sm text-gray-600 space-y-2 mt-3">
-              <li><a class="hover:text-black" href="#dashscope">通义千问</a></li>
-              <li><a class="hover:text-black" href="#qianfan">文心一言</a></li>
-              <li><a class="hover:text-black" href="#openai">OpenAI</a></li>
-              <li><a class="hover:text-black" href="#deepseek">DeepSeek</a></li>
-              <li><a class="hover:text-black" href="#claude">Claude</a></li>
+              <li><a class="hover:text-black" href="#" @click.prevent="goSection('dashscope')">通义千问</a></li>
+              <li><a class="hover:text-black" href="#" @click.prevent="goSection('qianfan')">文心一言</a></li>
+              <li><a class="hover:text-black" href="#" @click.prevent="goSection('openai')">OpenAI</a></li>
+              <li><a class="hover:text-black" href="#" @click.prevent="goSection('deepseek')">DeepSeek</a></li>
+              <li><a class="hover:text-black" href="#" @click.prevent="goSection('claude')">Claude</a></li>
             </ul>
           </details>
           <details class="glass p-4 rounded-xl shadow-sm self-start" open>
@@ -780,7 +801,7 @@
 // - 所有配置通过 preload 暴露的 electronAPI 与主进程交互进行持久化；
 // - providers 支持标准键（dashscope/qianfan/openai/deepseek/claude）与自定义键（带别名后缀），用于同一类型多套配置；
 // - 保存时主进程会将用户配置写入系统用户目录，并对模板进行脱敏写回。
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import {
   DialogRoot,
   DialogTrigger,
@@ -803,6 +824,7 @@ import { t, setLang } from "@/locales";
 const language = ref("zh-CN");
 // 全局字号：通过 applyFont 应用到根元素，影响整体缩放
 const fontSize = ref(14);
+const activeTab = ref<'general'|'models'>('general')
 // Provider 配置聚合：标准键 + 自定义别名键（如 openai_lab）
 // 保存时写入用户目录；模板文件始终脱敏
 const providers = ref<any>({
@@ -1048,5 +1070,28 @@ const validAdd = computed(() => {
     return !!form.value.accessKey && !!form.value.secretKey;
   return !!form.value.apiKey;
 });
-onMounted(load);
+onMounted(async () => {
+  await load();
+  const tab = localStorage.getItem('settingsTab');
+  if (tab === 'general' || tab === 'models') {
+    activeTab.value = tab as any
+  } else {
+    activeTab.value = providersCount.value > 0 ? 'models' : 'general'
+  }
+  watch(activeTab, (v) => localStorage.setItem('settingsTab', v));
+  watch(fontSize, () => applyFont());
+});
 </script>
+function goSection(id: string) {
+  const el = document.getElementById(id)
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+const providersCount = computed(() => {
+  const base = ['dashscope','qianfan','openai','deepseek','claude']
+  let n = base.reduce((acc,k)=>acc + (hasProvider(k)?1:0), 0)
+  n += openaiCustomKeys.value.length
+  n += dashscopeCustomKeys.value.length
+  n += deepseekCustomKeys.value.length
+  n += qianfanCustomKeys.value.length
+  return n
+})
