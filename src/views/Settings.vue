@@ -50,10 +50,10 @@
             </div>
           </div>
           <div class="flex gap-3 justify-end mt-4">
-            <button class="btn-primary px-4 py-2" @click="save">
+            <button class="btn-primary px-4 py-2" @click="saveGeneral">
               {{ t("save") }}
             </button>
-            <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" @click="reset">
+            <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" @click="resetGeneral">
               {{ t("reset") }}
             </button>
           </div>
@@ -750,10 +750,10 @@
           </div>
 
         <div v-if="activeTab==='models' && hasModels" class="flex gap-3 justify-end mt-4">
-          <button class="btn-primary px-4 py-2" @click="save">
+          <button class="btn-primary px-4 py-2" @click="saveModels">
             {{ t("save") }}
           </button>
-          <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" @click="reset">
+          <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" @click="resetModels">
             {{ t("reset") }}
           </button>
         </div>
@@ -867,28 +867,38 @@ async function load() {
 function applyFont() {
   document.documentElement.style.fontSize = `${fontSize.value}px`;
 }
-// 保存配置到主进程，并刷新本地状态与语言包
-async function save() {
+// 保存通用设置（语言、字号）
+async function saveGeneral() {
   const safeProviders = JSON.parse(JSON.stringify(providers.value));
   const next = await (window as any).electronAPI.setConfig({
     language: language.value,
     fontSize: fontSize.value,
-    providers: safeProviders,
   });
   // 更新本地状态与语言，并应用字号
   language.value = next.language;
   fontSize.value = next.fontSize;
-  providers.value = normalizeProviders(next.providers);
   applyFont();
   setLang(next.language);
 }
-// 重置为默认配置并保存
-async function reset() {
+// 重置通用设置为默认并保存
+async function resetGeneral() {
   language.value = "zh-CN";
   fontSize.value = 14;
-  providers.value = normalizeProviders({});
   applyFont();
-  await save();
+  await saveGeneral();
+}
+// 保存模型设置（providers）
+async function saveModels() {
+  const safeProviders = JSON.parse(JSON.stringify(providers.value));
+  const next = await (window as any).electronAPI.setConfig({
+    providers: safeProviders,
+  });
+  providers.value = normalizeProviders(next.providers);
+}
+// 重置模型设置并保存
+async function resetModels() {
+  providers.value = normalizeProviders({});
+  await saveModels();
 }
 function openDoc(type: string) {
   // 文档链接映射：统一在系统浏览器中打开，避免应用内导航

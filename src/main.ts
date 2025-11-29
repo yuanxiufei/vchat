@@ -149,9 +149,10 @@ const createWindow = async () => {
   ipcMain.handle('config:set', async (_e, patch: Partial<AppCfg>) => {
     const cur = await readCfg()
     const next: AppCfg = {
-      language: patch.language || cur.language,
+      language: patch.language ?? cur.language,
       fontSize: Number(patch.fontSize ?? cur.fontSize),
-      providers: { ...cur.providers, ...(patch.providers || {}) },
+      // 当传入 providers 时，视为完整替换；未传入则保留现有
+      providers: (patch.providers !== undefined ? (patch.providers as any) : cur.providers) as any,
     }
     await writeCfg(next)
     mainWindow.webContents.send('config:updated', next)
