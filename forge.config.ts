@@ -16,7 +16,7 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 // Forge 配置主体
 const config: ForgeConfig = {
   packagerConfig: {
-    name: "smart-shat", // 应用名称（打包产物显示的 App 名）
+    name: "vchat", // 应用名称（打包产物显示的 App 名）
     asar: true, // 开启 asar 打包，源码压缩到 asar，减少文件数量并提升加载速度
   },
   rebuildConfig: {},
