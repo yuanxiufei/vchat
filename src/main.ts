@@ -106,7 +106,7 @@ const createWindow = async () => {
 
   // 配置文件：模板位于仓库 src/utils/config.json；用户配置位于系统用户目录
   const appRoot = app.getAppPath()
-  const cfgSrcPath = path.join(appRoot, 'src', 'utils', 'config.template.json')
+  const cfgSrcPath = path.join(appRoot, 'src', 'utils', 'config.json')
   const cfgPath = path.join(app.getPath('userData'), 'config.json')
   type ProviderCfg = { apiKey?: string; baseUrl?: string; accessKey?: string; secretKey?: string }
   type AppCfg = { language: string; fontSize: number; providers: { dashscope?: ProviderCfg; qianfan?: ProviderCfg; openai?: ProviderCfg; deepseek?: ProviderCfg; claude?: ProviderCfg } }
@@ -164,6 +164,19 @@ const createWindow = async () => {
   async function writeCfg(cfg: AppCfg) {
     await fs.mkdir(path.dirname(cfgPath), { recursive: true })
     await fs.writeFile(cfgPath, Buffer.from(JSON.stringify(cfg)))
+    try {
+      const safe: any = { ...cfg, providers: { ...(cfg.providers as any) } }
+      Object.keys(safe.providers || {}).forEach((k) => {
+        const v = safe.providers[k] || {}
+        if (v && typeof v === 'object') {
+          if ('accessKey' in v) v.accessKey = ''
+          if ('secretKey' in v) v.secretKey = ''
+          if ('apiKey' in v) v.apiKey = ''
+        }
+      })
+      await fs.mkdir(path.dirname(cfgSrcPath), { recursive: true })
+      await fs.writeFile(cfgSrcPath, Buffer.from(JSON.stringify(safe)))
+    } catch {}
   }
   // 渲染端获取配置
   ipcMain.handle('config:get', async () => {
