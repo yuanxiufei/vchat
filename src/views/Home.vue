@@ -1,12 +1,15 @@
 <!-- 首页：选择模型并输入问题，创建新对话后跳转到会话页 -->
 <template>
-     <div class="w-[80%] mx-auto h-full">
-        
-        <div class="flex items-center h-[85%]">
-          <ProviderSelect :items="providers" v-model="currentProvider" />
+  <div class="max-w-[860px] w-[85%] mx-auto h-full flex flex-col px-4">
+        <div class="w-full flex-1 flex items-center">
+          <ProviderSelect :items="providers" v-model="currentProvider" size="md" variant="pill" fluid />
         </div>
-        <div class="flex items-center h-[15%]">
-          <MessageInput v-model="inputText" @send="handleSend"  :disabled="currentProvider === ''" />
+        <div class="w-full mt-auto pb-6">
+          <div v-if="noModels" class="mb-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl px-3 py-2 flex items-center justify-between">
+            <div class="text-xs">{{ t('no_models_tip') }}</div>
+            <button class="px-2 py-1 text-xs bg-white border border-yellow-300 rounded-md hover:bg-yellow-100" @click="goSettings">{{ t('settings') }}</button>
+          </div>
+          <MessageInput v-model="inputText" @send="handleSend" :disabled="currentProvider === ''" />
         </div>
       </div>
 </template>

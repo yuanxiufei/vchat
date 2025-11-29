@@ -4,7 +4,7 @@
     <div v-if="conversation" class="glass rounded-xl px-4 py-4  flex items-center justify-between">
       <h3 class="font-semibold text-gray-900 flex-1 min-w-0 truncate">{{ conversation?.title }}</h3>
       <div class="flex items-center gap-3 flex-shrink-0">
-        <ProviderSelect v-if="providerItems.length" v-model="currentPick" :items="providerItems" />
+        <ProviderSelect v-if="providerItems.length" v-model="currentPick" :items="providerItems" size="sm" variant="pill" :menuWidth="260" :menuMax="280" />
         <span class="whitespace-nowrap text-sm text-gray-700 ml-2 flex-shrink-0">{{ dayjs(conversation?.createdAt).format("YYYY-MM-DD HH:mm") }}</span>
       </div>
     </div>
