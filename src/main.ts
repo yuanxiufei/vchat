@@ -1,5 +1,7 @@
 // 主进程入口：窗口、菜单、IPC、配置管理、协议注册与图片处理
 import { app, BrowserWindow, ipcMain, protocol, Menu, shell,net } from "electron";
+import { buildAppMenu } from './menu/appMenu'
+import { registerGlobalShortcuts, unregisterGlobalShortcuts } from './menu/globalShortcuts'
 import path from "node:path";
 import started from "electron-squirrel-startup";
 //  引入doenv自动加载env文件
@@ -13,6 +15,11 @@ import url from 'url'
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
+}
+
+// Dev-only: suppress Electron security warnings about CSP during development
+if (!app.isPackaged) {
+  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 }
 
 // 创建主窗口并绑定菜单、IPC 及自定义协议
@@ -29,52 +36,8 @@ const createWindow = async () => {
     },
   });
 
-  // 应用菜单：常见文件/编辑/视图/窗口/帮助
-  const menu = Menu.buildFromTemplate([
-    {
-      label: '文件',
-      submenu: [
-        { label: '新建对话', click: () => mainWindow.webContents.send('menu:new-conversation') },
-        { type: 'separator' },
-        { label: '退出', role: 'quit' },
-      ]
-    },
-    {
-      label: '编辑',
-      submenu: [
-        { label: '撤销', role: 'undo' },
-        { label: '重做', role: 'redo' },
-        { type: 'separator' },
-        { label: '剪切', role: 'cut' },
-        { label: '复制', role: 'copy' },
-        { label: '粘贴', role: 'paste' },
-        { label: '全选', role: 'selectAll' },
-      ]
-    },
-    {
-      label: '视图',
-      submenu: [
-        { label: '重新加载', role: 'reload' },
-        { label: '切换开发者工具', role: 'toggleDevTools' },
-        { type: 'separator' },
-        { label: '全屏', role: 'togglefullscreen' },
-      ]
-    },
-    {
-      label: '窗口',
-      submenu: [
-        { label: '最小化', role: 'minimize' },
-        { label: '关闭', role: 'close' },
-      ]
-    },
-    {
-      label: '帮助',
-      submenu: [
-        { label: '官方网站', click: () => shell.openExternal('https://electronjs.org') },
-      ]
-    },
-  ])
-  Menu.setApplicationMenu(menu)
+  buildAppMenu(mainWindow)
+  registerGlobalShortcuts(() => (mainWindow?.isDestroyed() ? null : mainWindow))
 
   mainWindow.on('enter-full-screen', () => {
     mainWindow.webContents.send('window:fullscreen', true)
@@ -311,6 +274,10 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+app.on('will-quit', () => {
+  unregisterGlobalShortcuts()
+})
 
 app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the

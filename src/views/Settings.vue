@@ -749,7 +749,7 @@
             </details>
           </div>
 
-        <div v-if="activeTab==='models'" class="flex gap-3 justify-end mt-4">
+        <div v-if="activeTab==='models' && hasModels" class="flex gap-3 justify-end mt-4">
           <button class="btn-primary px-4 py-2" @click="save">
             {{ t("save") }}
           </button>
@@ -1070,6 +1070,16 @@ const validAdd = computed(() => {
     return !!form.value.accessKey && !!form.value.secretKey;
   return !!form.value.apiKey;
 });
+
+// 是否存在至少一个拥有模型列表的 Provider（用于控制保存/重置展示）
+const hasModels = computed(() => {
+  const p: any = providers.value
+  for (const k of Object.keys(p)) {
+    const v = p[k]
+    if (v && Array.isArray(v.models) && v.models.length > 0) return true
+  }
+  return false
+})
 onMounted(async () => {
   await load();
   const tab = localStorage.getItem('settingsTab');
