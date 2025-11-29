@@ -34,10 +34,12 @@
 // - 监听全屏与配置更新，保持 UI 一致。
 import ConversationList from '@/components/ConversationList.vue'
 import { onMounted, onUnmounted, computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Button from './components/Button.vue'
 import { initProviders } from '@/data/db'
 import { useConversationStore } from '@/stores/conversation'
 import { t, setLang } from '@/locales'
+const router = useRouter()
 
 // 初始化对话列表方法对象
 const conversationStore = useConversationStore()
@@ -65,6 +67,8 @@ onMounted(()=>{
     document.documentElement.style.fontSize = `${Number(cfg.fontSize) || 14}px`
   })
   ;(window as any).electronAPI.onConfigUpdated((cfg:{ language:string })=>{ setLang(cfg.language) })
+  ;(window as any).electronAPI.onMenuNewConversation(()=>{ router.push('/') })
+  ;(window as any).electronAPI.onMenuOpenSettings(()=>{ router.push('/settings') })
 })
 onUnmounted(()=>{ document.removeEventListener('keydown', onKey) })
 console.log('🐝 This message is being logged by "App.vue", included via Vite');

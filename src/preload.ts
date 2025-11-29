@@ -23,4 +23,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setConfig:(patch:any)=>ipcRenderer.invoke('config:set',patch),
   onConfigUpdated:(cb:(cfg:any)=>void)=>ipcRenderer.on('config:updated',(_e,cfg)=>cb(cfg)),
   openExternal:(url:string)=>ipcRenderer.invoke('open-external',url),
+  onMenuNewConversation:(cb:()=>void)=>ipcRenderer.on('menu:new-conversation',()=>cb()),
+  onMenuOpenSettings:(cb:()=>void)=>ipcRenderer.on('menu:open-settings',()=>cb()),
 })

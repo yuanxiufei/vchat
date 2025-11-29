@@ -198,6 +198,12 @@
               </DialogPortal>
             </DialogRoot>
           </div>
+          <div v-if="!hasModels" class="glass rounded-xl p-6 text-sm text-gray-600 flex items-center justify-between">
+            <div>
+              <div class="text-base font-medium text-gray-700 mb-1">尚未配置任何模型</div>
+              <div class="text-gray-600">点击右上角“新增”，填写所需的 API Key、BaseUrl 与模型列表。</div>
+            </div>
+          </div>
           <div
             class="grid sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6 items-start"
           >
@@ -897,8 +903,13 @@ async function saveModels() {
 }
 // 重置模型设置并保存
 async function resetModels() {
-  providers.value = normalizeProviders({});
-  await saveModels();
+  const p:any = providers.value
+  Object.keys(p).forEach((k)=>{
+    const v = p[k]
+    if (v && Array.isArray(v.models)) v.models = []
+  })
+  providers.value = { ...p }
+  await saveModels()
 }
 function openDoc(type: string) {
   // 文档链接映射：统一在系统浏览器中打开，避免应用内导航
@@ -1018,7 +1029,7 @@ async function addProvider() {
     };
   }
   providers.value = { ...p };
-  await save();
+  await saveModels();
   showAdd.value = false;
   form.value = {};
 }
@@ -1042,7 +1053,7 @@ async function removeProvider(key: string) {
   const p: any = providers.value;
   p[key] = {};
   providers.value = { ...p };
-  await save();
+  await saveModels();
 }
 // 判断某 Provider 是否已有配置
 function hasProvider(key: string) {
@@ -1090,18 +1101,7 @@ const hasModels = computed(() => {
   }
   return false
 })
-onMounted(async () => {
-  await load();
-  const tab = localStorage.getItem('settingsTab');
-  if (tab === 'general' || tab === 'models') {
-    activeTab.value = tab as any
-  } else {
-    activeTab.value = providersCount.value > 0 ? 'models' : 'general'
-  }
-  watch(activeTab, (v) => localStorage.setItem('settingsTab', v));
-  watch(fontSize, () => applyFont());
-});
-</script>
+
 function goSection(id: string) {
   const el = document.getElementById(id)
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -1115,3 +1115,15 @@ const providersCount = computed(() => {
   n += qianfanCustomKeys.value.length
   return n
 })
+onMounted(async () => {
+  await load();
+  const tab = localStorage.getItem('settingsTab');
+  if (tab === 'general' || tab === 'models') {
+    activeTab.value = tab as any
+  } else {
+    activeTab.value = providersCount.value > 0 ? 'models' : 'general'
+  }
+  watch(activeTab, (v) => localStorage.setItem('settingsTab', v));
+  watch(fontSize, () => applyFont());
+});
+</script>

@@ -39,6 +39,18 @@ const createWindow = async () => {
   buildAppMenu(mainWindow)
   registerGlobalShortcuts(() => (mainWindow?.isDestroyed() ? null : mainWindow))
 
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    const isCmdCtrl = !!input.control || !!input.meta
+    if (isCmdCtrl && input.key && input.key.toLowerCase() === 'n') {
+      mainWindow.webContents.send('menu:new-conversation')
+      event.preventDefault()
+    }
+    if (isCmdCtrl && (input.key === ',' || input.code === 'Comma')) {
+      mainWindow.webContents.send('menu:open-settings')
+      event.preventDefault()
+    }
+  })
+
   mainWindow.on('enter-full-screen', () => {
     mainWindow.webContents.send('window:fullscreen', true)
   })
