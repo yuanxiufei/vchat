@@ -54,7 +54,8 @@ onMounted(async () => {
   try {
     const cfg = await (window as any).electronAPI.getConfig()
     document.documentElement.style.fontSize = `${Number(cfg.fontSize) || 14}px`
-    setLang(cfg.language)
+    await setLang(cfg.language)
+    document.title = t('app_title')
   } catch {}
 })
 
@@ -66,7 +67,7 @@ onMounted(()=>{
   ;(window as any).electronAPI.onConfigUpdated((cfg:{ fontSize:number })=>{
     document.documentElement.style.fontSize = `${Number(cfg.fontSize) || 14}px`
   })
-  ;(window as any).electronAPI.onConfigUpdated((cfg:{ language:string })=>{ setLang(cfg.language) })
+  ;(window as any).electronAPI.onConfigUpdated(async (cfg:{ language:string })=>{ await setLang(cfg.language); document.title = t('app_title') })
   ;(window as any).electronAPI.onMenuNewConversation(()=>{ router.push('/') })
   ;(window as any).electronAPI.onMenuOpenSettings(()=>{ router.push('/settings') })
 })

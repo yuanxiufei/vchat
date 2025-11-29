@@ -53,5 +53,6 @@
   "docs_claude": "Claude 配置说明",
   "docs_qianfan": "文心一言（千帆）配置说明",
   "docs_dashscope": "通义千问（DashScope）配置说明",
-  "docs_openai_compat": "OpenAI 兼容模式说明"
+  "docs_openai_compat": "OpenAI 兼容模式说明",
+  "app_title": "智聊"
 }

@@ -53,5 +53,6 @@
   "docs_claude": "Claude Configuration",
   "docs_qianfan": "Qianfan (ERNIE) Configuration",
   "docs_dashscope": "DashScope (Tongyi) Configuration",
-  "docs_openai_compat": "OpenAI Compatibility Mode"
+  "docs_openai_compat": "OpenAI Compatibility Mode",
+  "app_title": "Smart Chat"
 }
