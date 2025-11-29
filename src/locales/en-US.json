@@ -55,4 +55,10 @@
   "docs_dashscope": "DashScope (Tongyi) Configuration",
   "docs_openai_compat": "OpenAI Compatibility Mode",
   "app_title": "Smart Chat"
+  , "delete": "Delete",
+  "confirm_delete": "Delete this conversation? This cannot be undone"
+  , "pin": "Pin",
+  , "rename": "Rename"
+  , "unpin": "Unpin",
+  , "pinned": "Pinned"
 }

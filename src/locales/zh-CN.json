@@ -54,5 +54,11 @@
   "docs_qianfan": "文心一言（千帆）配置说明",
   "docs_dashscope": "通义千问（DashScope）配置说明",
   "docs_openai_compat": "OpenAI 兼容模式说明",
-  "app_title": "智聊"
+  "app_title": "智聊",
+  "delete": "删除",
+  "confirm_delete": "删除该对话？此操作不可撤销",
+  "pin": "置顶",
+  "rename": "重命名",
+  "unpin": "取消置顶",
+  "pinned": "置顶"
 }

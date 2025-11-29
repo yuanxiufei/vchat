@@ -24,7 +24,12 @@ export const useConversationStore = defineStore('conversation', {
     // 从数据库拉取所有会话并刷新内存状态
     async fetchConversations(){
      const items = await db.conversations.toArray()
-     this.items = items
+     this.items = items.sort((a,b)=>{
+       const ap = a.pinned ? 1 : 0
+       const bp = b.pinned ? 1 : 0
+       if(bp !== ap) return bp - ap
+       return (b.updatedAt || '').localeCompare(a.updatedAt || '')
+     })
     },
     /**
      * 创建对话方法对象
@@ -35,9 +40,41 @@ export const useConversationStore = defineStore('conversation', {
         const newCId = await db.conversations.add(createdData)
         this.items.push({
              id: newCId,
+          pinned: false,
           ...createdData        
         })
         return newCId
+    }
+    ,
+    async deleteConversation(id: number){
+      await db.messages.where('conversationId').equals(id).delete()
+      await db.conversations.where('id').equals(id).delete()
+      this.items = this.items.filter(i=>i.id !== id)
+      if(this.selectedId === id){
+        this.selectedId = this.items.length ? this.items[0].id : -1
+      }
+    }
+    ,
+    async renameConversation(id:number, title:string){
+      const now = new Date().toISOString()
+      await db.conversations.update(id, { title, updatedAt: now })
+      const it = this.items.find(i=>i.id===id)
+      if(it){ it.title = title; it.updatedAt = now }
+    }
+    ,
+    async togglePin(id:number){
+      const now = new Date().toISOString()
+      const it = this.items.find(i=>i.id===id)
+      const pinned = !(it?.pinned)
+      await db.conversations.update(id, { pinned, updatedAt: now })
+      if(it){ it.pinned = pinned; it.updatedAt = now }
+      this.items = this.items.sort((a,b)=>{
+        const ap = a.pinned ? 1 : 0
+        const bp = b.pinned ? 1 : 0
+        if(bp !== ap) return bp - ap
+        return (b.updatedAt || '').localeCompare(a.updatedAt || '')
+      })
+      this.selectedId = id
     }
   },
   getters: {

@@ -6,6 +6,7 @@ export interface ConversationProps {
   createdAt: string;
   updatedAt: string;
   providerId: number;
+  pinned?: boolean;
 }
 // 提供器：模型提供方或别名配置项（含标题描述头像与模型列表）
 export interface ProviderProps {
