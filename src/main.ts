@@ -7,7 +7,6 @@ import started from "electron-squirrel-startup";
 //  引入doenv自动加载env文件
 // 加载 .env(.local) 环境变量，供各 Provider 回退读取密钥
 import "dotenv/config";
-import { runDemo } from "./data/demo";
 import { CreateChatProps, updatedStreamData } from "./types/appType";
 import fs from 'fs/promises'
 import { CreateProvider } from "./providers/CreateProvider";
@@ -20,6 +19,67 @@ if (started) {
 // Dev-only: suppress Electron security warnings about CSP during development
 if (!app.isPackaged) {
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
+}
+
+// 配置文件路径与读写工具（顶层定义，避免在 createWindow 调用前未初始化）
+const appRoot = app.getAppPath()
+const cfgSrcPath = path.join(appRoot, 'src', 'utils', 'config.json')
+const cfgPath = path.join(app.getPath('userData'), 'config.json')
+type ProviderCfg = { apiKey?: string; baseUrl?: string; accessKey?: string; secretKey?: string }
+type AppCfg = { language: string; fontSize: number; providers: { [key: string]: ProviderCfg } }
+const defaults: AppCfg = { language: 'zh-CN', fontSize: 14, providers: {} }
+async function readCfg(): Promise<AppCfg> {
+  let srcConf: Partial<AppCfg> = {}
+  let userConf: Partial<AppCfg> = {}
+  try {
+    const buf = await fs.readFile(cfgSrcPath)
+    const json = JSON.parse(buf.toString())
+    srcConf = { language: json.language, fontSize: json.fontSize, providers: { ...(json.providers || {}) } as any }
+  } catch {}
+  try {
+    const buf = await fs.readFile(cfgPath)
+    const json = JSON.parse(buf.toString())
+    userConf = { language: json.language, fontSize: json.fontSize, providers: { ...(json.providers || {}) } as any }
+  } catch {}
+  const srcProviders: any = (srcConf as any).providers || {}
+  const userProviders: any = (userConf as any).providers || {}
+  const mergedProviders: any = {}
+  const keys = new Set<string>([...Object.keys(srcProviders), ...Object.keys(userProviders)])
+  keys.forEach((k) => {
+    const u = userProviders[k]; const s = srcProviders[k]
+    if (u && typeof u === 'object' && Object.keys(u).length > 0) mergedProviders[k] = u
+    else if (s && typeof s === 'object' && Object.keys(s).length > 0) mergedProviders[k] = s
+  })
+  const merged: AppCfg = {
+    language: (userConf.language ?? srcConf.language ?? defaults.language) as any,
+    fontSize: Number(userConf.fontSize ?? srcConf.fontSize ?? defaults.fontSize),
+    providers: mergedProviders,
+  }
+  try {
+    const needMigrate = (!userConf.providers || Object.keys(userConf.providers || {}).length === 0) && Object.keys(srcProviders || {}).length > 0
+    if (needMigrate) {
+      await fs.mkdir(path.dirname(cfgPath), { recursive: true })
+      await fs.writeFile(cfgPath, Buffer.from(JSON.stringify(merged)))
+    }
+  } catch {}
+  return merged
+}
+async function writeCfg(cfg: AppCfg) {
+  await fs.mkdir(path.dirname(cfgPath), { recursive: true })
+  await fs.writeFile(cfgPath, Buffer.from(JSON.stringify(cfg)))
+  try {
+    const safe: any = { ...cfg, providers: { ...(cfg.providers as any) } }
+    Object.keys(safe.providers || {}).forEach((k) => {
+      const v = safe.providers[k] || {}
+      if (v && typeof v === 'object') {
+        if ('accessKey' in v) v.accessKey = ''
+        if ('secretKey' in v) v.secretKey = ''
+        if ('apiKey' in v) v.apiKey = ''
+      }
+    })
+    await fs.mkdir(path.dirname(cfgSrcPath), { recursive: true })
+    await fs.writeFile(cfgSrcPath, Buffer.from(JSON.stringify(safe)))
+  } catch {}
 }
 
 // 创建主窗口并绑定菜单、IPC 及自定义协议
@@ -36,7 +96,8 @@ const createWindow = async () => {
     },
   });
 
-  buildAppMenu(mainWindow)
+  const initialCfg = await readCfg()
+  buildAppMenu(mainWindow, initialCfg.language as any)
   registerGlobalShortcuts(() => (mainWindow?.isDestroyed() ? null : mainWindow))
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -49,6 +110,16 @@ const createWindow = async () => {
       mainWindow.webContents.send('menu:open-settings')
       event.preventDefault()
     }
+  })
+
+  mainWindow.webContents.on('did-fail-load', (_e, errorCode, errorDescription, validatedURL) => {
+    console.error('[did-fail-load]', { errorCode, errorDescription, validatedURL })
+  })
+  mainWindow.webContents.on('render-process-gone', (_e, details) => {
+    console.error('[render-process-gone]', details)
+  })
+  mainWindow.on('unresponsive', () => {
+    console.error('[window-unresponsive]')
   })
 
   mainWindow.on('enter-full-screen', () => {
@@ -79,80 +150,6 @@ const createWindow = async () => {
     return `data:${ct};base64,${buf.toString('base64')}`
   })
 
-  // 配置文件：模板位于仓库 src/utils/config.json；用户配置位于系统用户目录
-  const appRoot = app.getAppPath()
-  const cfgSrcPath = path.join(appRoot, 'src', 'utils', 'config.json')
-  const cfgPath = path.join(app.getPath('userData'), 'config.json')
-  type ProviderCfg = { apiKey?: string; baseUrl?: string; accessKey?: string; secretKey?: string }
-  type AppCfg = { language: string; fontSize: number; providers: { dashscope?: ProviderCfg; qianfan?: ProviderCfg; openai?: ProviderCfg; deepseek?: ProviderCfg; claude?: ProviderCfg } }
-  const defaults: AppCfg = { language: 'zh-CN', fontSize: 14, providers: {} }
-  // 读取并合并模板配置与用户配置（用户优先）
-  async function readCfg(): Promise<AppCfg> {
-    let srcConf: Partial<AppCfg> = {}
-    let userConf: Partial<AppCfg> = {}
-    try {
-      const buf = await fs.readFile(cfgSrcPath)
-      const json = JSON.parse(buf.toString())
-      srcConf = {
-        language: json.language,
-        fontSize: json.fontSize,
-        providers: { ...(json.providers || {}) } as any,
-      }
-    } catch {}
-    try {
-      const buf = await fs.readFile(cfgPath)
-      const json = JSON.parse(buf.toString())
-      userConf = {
-        language: json.language,
-        fontSize: json.fontSize,
-        providers: { ...(json.providers || {}) } as any,
-      }
-    } catch {}
-    const srcProviders: any = (srcConf as any).providers || {}
-    const userProviders: any = (userConf as any).providers || {}
-    const mergedProviders: any = {}
-    const keys = new Set<string>([...Object.keys(srcProviders), ...Object.keys(userProviders)])
-    keys.forEach((k)=>{
-      const u = userProviders[k]
-      const s = srcProviders[k]
-      if (u && typeof u === 'object' && Object.keys(u).length > 0) {
-        mergedProviders[k] = u
-      } else if (s && typeof s === 'object' && Object.keys(s).length > 0) {
-        mergedProviders[k] = s
-      }
-    })
-    const merged: AppCfg = {
-      language: (userConf.language ?? srcConf.language ?? defaults.language) as any,
-      fontSize: Number(userConf.fontSize ?? srcConf.fontSize ?? defaults.fontSize),
-      providers: mergedProviders,
-    }
-    try {
-      const needMigrate = (!userConf.providers || Object.keys(userConf.providers || {}).length === 0) && Object.keys(srcProviders || {}).length > 0
-      if (needMigrate) {
-        await fs.mkdir(path.dirname(cfgPath), { recursive: true })
-        await fs.writeFile(cfgPath, Buffer.from(JSON.stringify(merged)))
-      }
-    } catch {}
-    return merged
-  }
-  // 写入用户配置，并将模板中的敏感字段脱敏后写回（避免入库泄露）
-  async function writeCfg(cfg: AppCfg) {
-    await fs.mkdir(path.dirname(cfgPath), { recursive: true })
-    await fs.writeFile(cfgPath, Buffer.from(JSON.stringify(cfg)))
-    try {
-      const safe: any = { ...cfg, providers: { ...(cfg.providers as any) } }
-      Object.keys(safe.providers || {}).forEach((k) => {
-        const v = safe.providers[k] || {}
-        if (v && typeof v === 'object') {
-          if ('accessKey' in v) v.accessKey = ''
-          if ('secretKey' in v) v.secretKey = ''
-          if ('apiKey' in v) v.apiKey = ''
-        }
-      })
-      await fs.mkdir(path.dirname(cfgSrcPath), { recursive: true })
-      await fs.writeFile(cfgSrcPath, Buffer.from(JSON.stringify(safe)))
-    } catch {}
-  }
   // 渲染端获取配置
   ipcMain.handle('config:get', async () => {
     return await readCfg()
@@ -167,6 +164,7 @@ const createWindow = async () => {
       providers: (patch.providers !== undefined ? (patch.providers as any) : cur.providers) as any,
     }
     await writeCfg(next)
+    buildAppMenu(mainWindow, next.language as any)
     mainWindow.webContents.send('config:updated', next)
     return next
   })
@@ -271,7 +269,6 @@ const createWindow = async () => {
   }
 
   mainWindow.webContents.openDevTools();
-  await runDemo();
 };
 
 // This method will be called when Electron has finished

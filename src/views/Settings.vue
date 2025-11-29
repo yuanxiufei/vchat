@@ -211,10 +211,11 @@
               v-if="hasProvider('dashscope')"
               id="dashscope"
               class="glass p-4 rounded-xl shadow-sm self-start"
-              open
+              :open="hasModelsFor('dashscope')"
             >
               <summary class="cursor-pointer font-medium">
                 {{ t('dashscope_title') }}
+                <span v-if="!hasModelsFor('dashscope')" class="text-xs text-gray-500">（未配置模型）</span>
               </summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
@@ -276,9 +277,11 @@
               v-if="hasProvider('qianfan')"
               id="qianfan"
               class="glass p-4 rounded-xl shadow-sm self-start"
+              :open="hasModelsFor('qianfan')"
             >
               <summary class="cursor-pointer font-medium">
                 {{ t('qianfan_title') }}
+                <span v-if="!hasModelsFor('qianfan')" class="text-xs text-gray-500">（未配置模型）</span>
               </summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
@@ -340,8 +343,9 @@
               v-if="hasProvider('openai')"
               id="openai"
               class="glass p-4 rounded-xl shadow-sm self-start"
+              :open="hasModelsFor('openai')"
             >
-              <summary class="cursor-pointer font-medium">{{ t('openai_title') }}</summary>
+              <summary class="cursor-pointer font-medium">{{ t('openai_title') }}<span v-if="!hasModelsFor('openai')" class="text-xs text-gray-500">（未配置模型）</span></summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('api_key') }}</label>
@@ -399,9 +403,10 @@
             </details>
 
             <template v-for="key in openaiCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start">
+              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start" :open="hasModelsFor(key)">
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('openai_title') }}（{{ key }}）
+                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
@@ -469,9 +474,10 @@
             </template>
 
             <template v-for="key in dashscopeCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start">
+              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start" :open="hasModelsFor(key)">
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('dashscope_title') }}（{{ key }}）
+                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
@@ -523,9 +529,10 @@
             </template>
 
             <template v-for="key in deepseekCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start">
+              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start" :open="hasModelsFor(key)">
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('deepseek_title') }}（{{ key }}）
+                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
@@ -577,9 +584,10 @@
             </template>
 
             <template v-for="key in qianfanCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start">
+              <details :id="key" class="glass p-4 rounded-xl shadow sm self-start" :open="hasModelsFor(key)">
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('qianfan_title') }}（{{ key }}）
+                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
@@ -634,8 +642,9 @@
               v-if="hasProvider('deepseek')"
               id="deepseek"
               class="glass p-4 rounded-xl shadow-sm self-start"
+              :open="hasModelsFor('deepseek')"
             >
-              <summary class="cursor-pointer font-medium">{{ t('deepseek_title') }}</summary>
+              <summary class="cursor-pointer font-medium">{{ t('deepseek_title') }}<span v-if="!hasModelsFor('deepseek')" class="text-xs text-gray-500">（未配置模型）</span></summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('api_key') }}</label>
@@ -696,8 +705,9 @@
               v-if="hasProvider('claude')"
               id="claude"
               class="glass p-4 rounded-xl shadow-sm self-start"
+              :open="hasModelsFor('claude')"
             >
-              <summary class="cursor-pointer font-medium">{{ t('claude_title') }}</summary>
+              <summary class="cursor-pointer font-medium">{{ t('claude_title') }}<span v-if="!hasModelsFor('claude')" class="text-xs text-gray-500">（未配置模型）</span></summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('api_key') }}</label>
@@ -903,12 +913,7 @@ async function saveModels() {
 }
 // 重置模型设置并保存
 async function resetModels() {
-  const p:any = providers.value
-  Object.keys(p).forEach((k)=>{
-    const v = p[k]
-    if (v && Array.isArray(v.models)) v.models = []
-  })
-  providers.value = { ...p }
+  providers.value = {}
   await saveModels()
 }
 function openDoc(type: string) {
@@ -1097,9 +1102,26 @@ const hasModels = computed(() => {
   const p: any = providers.value
   for (const k of Object.keys(p)) {
     const v = p[k]
-    if (v && Array.isArray(v.models) && v.models.length > 0) return true
+    if (v) {
+      if (Array.isArray(v.models) && v.models.length > 0) return true
+      const s:any = (v as any).models
+      if (typeof s === 'string' && s.trim().length > 0) return true
+    }
   }
   return false
+})
+
+function hasModelsFor(key: string){
+  const v:any = (providers.value as any)[key]
+  if (!v) return false
+  if (Array.isArray(v.models)) return v.models.length > 0
+  const s:any = v.models
+  return typeof s === 'string' && s.trim().length > 0
+}
+
+const hasProviders = computed(()=>{
+  const p:any = providers.value
+  return !!p && Object.keys(p).length > 0
 })
 
 function goSection(id: string) {
