@@ -88,6 +88,7 @@ import { onMounted, nextTick, ref, watch } from "vue";
 // 增强：流程图与代码编辑器
 import mermaid from "mermaid";
 import * as monaco from "monaco-editor";
+import { codeToHtml } from 'shiki'
 // 接收消息列表
 const props = defineProps<{
     messages: MessageProps[];
@@ -95,16 +96,27 @@ const props = defineProps<{
 // 根容器：渲染后用于选择内部 DOM 进行增强
 const root = ref<HTMLElement | null>(null);
 const previewSrc = ref<string | null>(null)
-// mermaid 初始化为手动模式，避免抢占渲染流程
-mermaid.initialize({ startOnLoad: false });
+// mermaid 初始化：手动渲染 + 宽松安全级别（避免 Electron/DevServer 下动态加载受限）
+mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
 // 每次内容更新后：增强 mermaid 与 monaco 渲染
 async function enhance() {
     const el = root.value;
     if (!el) return;
-    // 查找 mermaid 代码块：支持 ```mermaid 与 .mermaid 容器
-    const mermaidBlocks = el.querySelectorAll(".language-mermaid, .mermaid");
+    // 将 ```mermaid 代码块转换为 .mermaid 容器，提高渲染稳定性
+    const mermaidCodes = el.querySelectorAll('pre > code.language-mermaid')
+    mermaidCodes.forEach((code) => {
+      const pre = code.parentElement as HTMLElement
+      if (!pre) return
+      const text = code.textContent || ''
+      const div = document.createElement('div')
+      div.className = 'mermaid'
+      div.textContent = text
+      pre.replaceWith(div)
+    })
+    // 查找 mermaid 容器并渲染
+    const mermaidBlocks = el.querySelectorAll('.mermaid')
     if (mermaidBlocks.length) {
-        await mermaid.run({ nodes: Array.from(mermaidBlocks) as HTMLElement[] });
+      await mermaid.run({ nodes: Array.from(mermaidBlocks) as HTMLElement[] })
     }
     // 查找需要用 Monaco 展示的代码块：语言前缀使用 language-monaco-<lang>
     const monacoBlocks = el.querySelectorAll(
@@ -137,6 +149,7 @@ async function enhance() {
             automaticLayout: true,
             minimap: { enabled: false },
             scrollBeyondLastLine: false,
+            scrollbar: { alwaysConsumeMouseWheel: false },
         });
         const updateHeight = () => {
             const h = editor.getContentHeight();
@@ -147,6 +160,61 @@ async function enhance() {
     editor.onDidContentSizeChange(updateHeight);
     updateHeight();
   });
+
+  // 为标准 ```lang 代码块添加 Monaco 高亮（排除 mermaid 与显式 monaco）
+  const normalBlocks = el.querySelectorAll(
+    'pre > code[class*="language-"]:not([class*="language-mermaid"]):not([class*="language-monaco-"])'
+  )
+  for (const code of Array.from(normalBlocks)) {
+    const pre = code.parentElement as HTMLElement
+    if (!pre) continue
+    const classes = Array.from(code.classList)
+    const langClass = classes.find((c) => c.startsWith('language-')) || 'language-text'
+    const raw = langClass.replace('language-', '')
+    const map: Record<string, string> = {
+      js: 'javascript', javascript: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript',
+      json: 'json', md: 'markdown', markdown: 'markdown', html: 'html', xml: 'xml', svg: 'xml',
+      css: 'css', scss: 'scss', less: 'less',
+      py: 'python', python: 'python', rb: 'ruby', ruby: 'ruby', php: 'php',
+      java: 'java', c: 'c', h: 'c', cpp: 'cpp', cxx: 'cpp', cc: 'cpp',
+      go: 'go', rs: 'rust', rust: 'rust', swift: 'swift', kt: 'kotlin', kotlin: 'kotlin',
+      sql: 'sql', yaml: 'yaml', yml: 'yaml', ini: 'ini', toml: 'ini',
+      sh: 'bash', bash: 'bash', shell: 'bash', zsh: 'bash',
+      txt: 'plaintext', text: 'plaintext'
+    }
+    const language = map[raw] || raw || 'plaintext'
+    const value = code.textContent || ''
+    try {
+      const html = await codeToHtml(value, { lang: language, theme: 'github-light' })
+      pre.outerHTML = html
+    } catch {
+      const mount = document.createElement('div')
+      mount.style.height = '100%'
+      mount.style.borderRadius = '0.375rem'
+      mount.style.display = 'block'
+      mount.style.width = '100%'
+      mount.style.boxSizing = 'border-box'
+      pre.replaceWith(mount)
+      const editor = monaco.editor.create(mount, {
+        value,
+        language,
+        readOnly: true,
+        wordWrap: 'on',
+        automaticLayout: true,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        scrollbar: { alwaysConsumeMouseWheel: false },
+      })
+      const updateHeight = () => {
+        const h = editor.getContentHeight()
+        const height = Math.max(200, Math.min(h, 800))
+        mount.style.height = height + 'px'
+        editor.layout()
+      }
+      editor.onDidContentSizeChange(updateHeight)
+      updateHeight()
+    }
+  }
 
   const imgs = el.querySelectorAll('img')
   imgs.forEach((img) => {
@@ -172,7 +240,8 @@ watch(
     async () => {
         await nextTick();
         await enhance();
-    }
+    },
+    { deep: true }
 );
 // 滚动到消息列表底部
 function scrollToBottom() {

@@ -20,6 +20,9 @@ export default defineConfig((env) => {
     css: {
       postcss: './postcss.config.js',
     },
+    optimizeDeps: {
+      include: ['mermaid']
+    },
     resolve: {
       preserveSymlinks: true,
       alias: {
