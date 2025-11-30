@@ -1,36 +1,80 @@
 <!-- 消息列表组件：渲染问题与答案，增强 mermaid 流程图与 Monaco 代码块，支持图片预览与自动滚动到底部 -->
 <template>
-    <!-- 消息列表：包含问题与答案，答案使用 Markdown 渲染并增强 mermaid/代码显示 -->
-    <div class="message-list" ref="root">
-        <div class="message-item mb-3" v-for="message in messages" :key="message.id">
-            <div class="flex" :class="{ 'justify-end': message.type === 'question' }">
-                <div class="w-full max-w-2xl">
-                    <div class="text-sm text-gray-500 mb-2" :class="{ 'text-right': message.type === 'question' }">
-                        {{ message.createdAt }}
-                    </div>
-                    <div class="message-question bg-[#34C759] text-white px-3 py-2 rounded-2xl shadow-sm"
-                        v-if="message.type === 'question'">
-                        <img v-if="message.imagePath" :src="`safe-file://${encodeURIComponent(message.imagePath)}`" alt="图片" class="w-12 h-12 object-cover cursor-zoom-in" @click="openImage(message.imagePath)" />
-                        {{ message.content }}
-                    </div>
-                    <div class="message-answer surface text-gray-800 px-3 py-2" v-else>
-                        <!-- 加载中：显示三点动画 -->
-                        <template v-if="message.status === 'loading'">
-                            <Icon icon="eos-icons:three-dots-loading" class="w-6 h-6"></Icon>
-                        </template>
-                        <!-- 非加载：prose 排版 + Markdown 渲染；mermaid/monaco 由脚本增强 -->
-                        <div v-else class="prose prose-slate max-w-none w-full prose-headings:my-1 prose-li:my-0 prose-ul:my-1 prose-pre:p-0">
-                            <img v-if="message.imagePath" :src="`safe-file://${encodeURIComponent(message.imagePath)}`" alt="图片" class="max-w-full rounded-md my-2 cursor-zoom-in" @click="openImage(message.imagePath)" />
-                            <MarkdownRender :content="renderContent(message)" />
-                        </div>
-                    </div>
-                </div>
+  <!-- 消息列表：包含问题与答案，答案使用 Markdown 渲染并增强 mermaid/代码显示 -->
+  <div
+    ref="root"
+    class="message-list"
+  >
+    <div
+      v-for="message in messages"
+      :key="message.id"
+      class="message-item mb-3"
+    >
+      <div
+        class="flex"
+        :class="{ 'justify-end': message.type === 'question' }"
+      >
+        <div class="w-full max-w-2xl">
+          <div
+            class="text-sm text-gray-500 mb-2"
+            :class="{ 'text-right': message.type === 'question' }"
+          >
+            {{ message.createdAt }}
+          </div>
+          <div
+            v-if="message.type === 'question'"
+            class="message-question bg-[#34C759] text-white px-3 py-2 rounded-2xl shadow-sm"
+          >
+            <img
+              v-if="message.imagePath"
+              :src="`safe-file://${encodeURIComponent(message.imagePath)}`"
+              alt="图片"
+              class="w-12 h-12 object-cover cursor-zoom-in"
+              @click="openImage(message.imagePath)"
+            >
+            {{ message.content }}
+          </div>
+          <div
+            v-else
+            class="message-answer surface text-gray-800 px-3 py-2"
+          >
+            <!-- 加载中：显示三点动画 -->
+            <template v-if="message.status === 'loading'">
+              <Icon
+                icon="eos-icons:three-dots-loading"
+                class="w-6 h-6"
+              />
+            </template>
+            <!-- 非加载：prose 排版 + Markdown 渲染；mermaid/monaco 由脚本增强 -->
+            <div
+              v-else
+              class="prose prose-slate max-w-none w-full prose-headings:my-1 prose-li:my-0 prose-ul:my-1 prose-pre:p-0"
+            >
+              <img
+                v-if="message.imagePath"
+                :src="`safe-file://${encodeURIComponent(message.imagePath)}`"
+                alt="图片"
+                class="max-w-full rounded-md my-2 cursor-zoom-in"
+                @click="openImage(message.imagePath)"
+              >
+              <MarkdownRender :content="renderContent(message)" />
             </div>
+          </div>
         </div>
+      </div>
     </div>
-    <div v-if="previewSrc" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center" @click="previewSrc=null">
-      <img :src="previewSrc" class="max-w-[90vw] max-h-[90vh] rounded shadow-lg" @click.stop />
-    </div>
+  </div>
+  <div
+    v-if="previewSrc"
+    class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center"
+    @click="previewSrc=null"
+  >
+    <img
+      :src="previewSrc"
+      class="max-w-[90vw] max-h-[90vh] rounded shadow-lg"
+      @click.stop
+    >
+  </div>
 </template>
 <script setup lang="ts">
 // 类型与组件

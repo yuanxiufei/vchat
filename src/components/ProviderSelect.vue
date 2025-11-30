@@ -1,67 +1,103 @@
 <!-- 模型选择组件：列表按 Provider 分组，选择具体模型返回 "providerId/model" -->
 <template>
-    <div class="provider-select w-full">
-        <SelectRoot v-model="currentModel">
-            <SelectTrigger :class="triggerShapeClass">
-                <template v-if="variant==='pill'">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <img v-if="selectedAvatar" :src="selectedAvatar" class="h-5 w-5 rounded" alt="avatar" />
-                    <span class="truncate">{{ selectedLabel || t('select_model') }}</span>
-                  </div>
-                </template>
-                <template v-else>
-                  <SelectValue :placeholder="t('select_model')" />
-                </template>
-                <Icon icon="radix-icons:chevron-down" class="h-5 w-5" />
-            </SelectTrigger>
-            <SelectPortal>
-                <SelectContent
-                  v-if="filteredItems.length"
-                  :position="'popper'"
-                  :align="'end'"
-                  :side="'bottom'"
-                  :sideOffset="8"
-                  :avoidCollisions="false"
-                  class="bg-white rounded-xl shadow z-[1000] border border-gray-100 max-h-[60vh] overflow-auto"
-                  :style="contentStyle"
+  <div class="provider-select w-full">
+    <SelectRoot v-model="currentModel">
+      <SelectTrigger :class="triggerShapeClass">
+        <template v-if="variant==='pill'">
+          <div class="flex items-center gap-2 min-w-0">
+            <img
+              v-if="selectedAvatar"
+              :src="selectedAvatar"
+              class="h-5 w-5 rounded"
+              alt="avatar"
+            >
+            <span class="truncate">{{ selectedLabel || t('select_model') }}</span>
+          </div>
+        </template>
+        <template v-else>
+          <SelectValue :placeholder="t('select_model')" />
+        </template>
+        <Icon
+          icon="radix-icons:chevron-down"
+          class="h-5 w-5"
+        />
+      </SelectTrigger>
+      <SelectPortal>
+        <SelectContent
+          v-if="filteredItems.length"
+          :position="'popper'"
+          :align="'end'"
+          :side="'bottom'"
+          :side-offset="8"
+          :avoid-collisions="false"
+          class="bg-white rounded-xl shadow z-[1000] border border-gray-100 max-h-[60vh] overflow-auto"
+          :style="contentStyle"
+        >
+          <SelectScrollUpButton class="flex items-center justify-center h-6 text-gray-400">
+            <Icon
+              icon="radix-icons:chevron-up"
+              class="h-5 w-5"
+            />
+          </SelectScrollUpButton>
+          <SelectViewport class="p-2 w-full">
+            <div
+              v-for="provider in filteredItems"
+              :key="provider.id"
+            >
+              <SelectLabel class="flex items-center px-4 h-7 text-gray-500 cursor-pointer">
+                <img
+                  :src="provider.avatar"
+                  :alt="provider.name"
+                  class="h-5 w-5 mr-2 rounded"
                 >
-                    <SelectScrollUpButton class="flex items-center justify-center h-6 text-gray-400">
-                      <Icon icon="radix-icons:chevron-up" class="h-5 w-5" />
-                    </SelectScrollUpButton>
-                    <SelectViewport class="p-2 w-full">
-                        <div v-for="provider in filteredItems" :key="provider.id">
-                          <SelectLabel class="flex items-center px-4 h-7 text-gray-500 cursor-pointer">
-                            <img :src="provider.avatar" :alt="provider.name" class="h-5 w-5 mr-2 rounded" />
-                            <span class="truncate max-w-[220px]">{{ provider.title || provider.name }}</span>
-                          </SelectLabel>
-                          <SelectGroup>
-                            <SelectItem v-for="(model,index) in provider.models" :key="index" :value="`${provider.id}/${model}`" 
-                            class="outline-none rounded flex items-center h-7 pl-8 pr-4 relative
+                <span class="truncate max-w-[220px]">{{ provider.title || provider.name }}</span>
+              </SelectLabel>
+              <SelectGroup>
+                <SelectItem
+                  v-for="(model,index) in provider.models"
+                  :key="index"
+                  :value="`${provider.id}/${model}`" 
+                  class="outline-none rounded flex items-center h-7 pl-8 pr-4 relative
                             text-green-700 cursor-pointer data-[highlighted]:bg-green-700
                             data-[highlighted]:text-white"
-                            >
-                            <SelectItemIndicator class="absolute left-2 w-6">
-                                <Icon icon="radix-icons:check" class="h-5 w-5" />
-                            </SelectItemIndicator>
-                               <SelectItemText class="truncate max-w-[220px]">
-                                   {{ model }}
-                               </SelectItemText>
-                            </SelectItem>
-                          </SelectGroup>
-                          <SelectSeparator class="h-[1px] my-1 bg-gray-200" />
-                        </div>
-                    </SelectViewport>
-                    <SelectScrollDownButton class="flex items-center justify-center h-6 text-gray-400">
-                      <Icon icon="radix-icons:chevron-down" class="h-5 w-5" />
-                    </SelectScrollDownButton>
-                </SelectContent>
-            </SelectPortal>
-        </SelectRoot>
-        <div v-if="!filteredItems.length && showEmptyTip" class="text-xs text-gray-600 mt-2 flex items-center gap-2">
-          <span>{{ t('no_models_tip') }}</span>
-          <button type="button" class="text-green-700 hover:text-black underline cursor-pointer" @click="goSettings">{{ t('settings') }}</button>
-        </div>
+                >
+                  <SelectItemIndicator class="absolute left-2 w-6">
+                    <Icon
+                      icon="radix-icons:check"
+                      class="h-5 w-5"
+                    />
+                  </SelectItemIndicator>
+                  <SelectItemText class="truncate max-w-[220px]">
+                    {{ model }}
+                  </SelectItemText>
+                </SelectItem>
+              </SelectGroup>
+              <SelectSeparator class="h-[1px] my-1 bg-gray-200" />
+            </div>
+          </SelectViewport>
+          <SelectScrollDownButton class="flex items-center justify-center h-6 text-gray-400">
+            <Icon
+              icon="radix-icons:chevron-down"
+              class="h-5 w-5"
+            />
+          </SelectScrollDownButton>
+        </SelectContent>
+      </SelectPortal>
+    </SelectRoot>
+    <div
+      v-if="!filteredItems.length && showEmptyTip"
+      class="text-xs text-gray-600 mt-2 flex items-center gap-2"
+    >
+      <span>{{ t('no_models_tip') }}</span>
+      <button
+        type="button"
+        class="text-green-700 hover:text-black underline cursor-pointer"
+        @click="goSettings"
+      >
+        {{ t('settings') }}
+      </button>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">

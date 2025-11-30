@@ -15,7 +15,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx,.vue ."
   },
   "keywords": [],
   "author": {
@@ -40,18 +40,27 @@
     "@tailwindcss/typography": "^0.5.19",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/mime-types": "^3.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.10.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "autoprefixer": "^10.4.21",
     "electron": "^35.7.2",
-    "eslint": "^8.57.1",
+    "eslint": "^9.13.0",
     "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-vue": "^9.20.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3",
-    "vite": "^5.4.14"
+    "vite": "^5.4.14",
+    "vue-eslint-parser": "^9.4.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@electron-forge/core": "7.8.0",
+      "@electron-forge/shared-types": "7.8.0",
+      "@electron/rebuild": "3.6.0"
+    }
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",

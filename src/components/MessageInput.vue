@@ -1,11 +1,24 @@
 <!-- 消息输入组件：支持文本输入与图片选择预览，按回车或点击按钮发送 -->
 <template>
   <div class="w-full surface overflow-hidden">
-    <div v-if="imagePreview" class="mb-2 relative flex items-center ">
-      <img :src="imagePreview" alt="Preview" class="w-20 h-20 rounded" >
+    <div
+      v-if="imagePreview"
+      class="mb-2 relative flex items-center "
+    >
+      <img
+        :src="imagePreview"
+        alt="Preview"
+        class="w-20 h-20 rounded"
+      >
     </div>
-   <div class="flex items-center">
-     <input type="file" accept="image/*" ref="fileInput" class="hidden" @change="handleImageUpload">
+    <div class="flex items-center">
+      <input
+        ref="fileInput"
+        type="file"
+        accept="image/*"
+        class="hidden"
+        @change="handleImageUpload"
+      >
       <Icon
         icon="radix-icons:image"
         :width="20"
@@ -13,24 +26,27 @@
         :class="['mx-2', disabled ? 'text-gray-300 cursor-not-allowed pointer-events-none' : 'text-gray-500 cursor-pointer hover:text-gray-700']"
         @click="triggerFileInput"
       />
-    <input
-      v-model="inputValue"
-      :disabled="disabled"
-      @keyup.enter="handleSend"
-      class="flex-1 h-10 px-3 outline-none placeholder-gray-400 text-gray-900 border-0 focus:ring-0"
-      type="text"
-      :placeholder="t('input_placeholder')"
-    />
-    <button
-      class="btn-primary px-4 py-1.5 mx-2 flex items-center justify-center self-center"
-      style="height:32px;"
-      @click="handleSend"
-      :disabled="disabled"
-    >
-      <Icon icon="mdi:send-outline" class="w-5 h-5 mr-1" />
-      {{ t('send') }}
-    </button>
-   </div>
+      <input
+        v-model="inputValue"
+        :disabled="disabled"
+        class="flex-1 h-10 px-3 outline-none placeholder-gray-400 text-gray-900 border-0 focus:ring-0"
+        type="text"
+        :placeholder="t('input_placeholder')"
+        @keyup.enter="handleSend"
+      >
+      <button
+        class="btn-primary px-4 py-1.5 mx-2 flex items-center justify-center self-center"
+        style="height:32px;"
+        :disabled="disabled"
+        @click="handleSend"
+      >
+        <Icon
+          icon="mdi:send-outline"
+          class="w-5 h-5 mr-1"
+        />
+        {{ t('send') }}
+      </button>
+    </div>
   </div>
 </template>
 

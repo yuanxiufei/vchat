@@ -11,16 +11,25 @@
             :class="activeTab==='general' ? 'text-gray-900 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-900'"
             type="button"
             @click="activeTab='general'"
-          >{{ t('app_settings') }}</button>
+          >
+            {{ t('app_settings') }}
+          </button>
           <button
             class="pb-4 -mb-px text-lg font-semibold"
             :class="activeTab==='models' ? 'text-gray-900 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-900'"
             type="button"
             @click="activeTab='models'"
-          >{{ t('model_settings') }}</button>
+          >
+            {{ t('model_settings') }}
+          </button>
         </div>
-        <div v-if="activeTab==='general'" class="glass rounded-2xl p-6 shadow-sm">
-          <h2 class="sr-only">{{ t("app_settings") }}</h2>
+        <div
+          v-if="activeTab==='general'"
+          class="glass rounded-2xl p-6 shadow-sm"
+        >
+          <h2 class="sr-only">
+            {{ t("app_settings") }}
+          </h2>
           <div class="grid grid-cols-2 gap-6 mt-4">
             <div>
               <label class="block text-sm text-gray-600 mb-2">{{
@@ -30,8 +39,12 @@
                 v-model="language"
                 class="w-full h-10 bg-white border border-gray-200 rounded-lg px-3 shadow-sm focus:outline-none focus:border-gray-200"
               >
-                <option value="zh-CN">简体中文</option>
-                <option value="en-US">English</option>
+                <option value="zh-CN">
+                  简体中文
+                </option>
+                <option value="en-US">
+                  English
+                </option>
               </select>
             </div>
             <div>
@@ -39,57 +52,140 @@
                 t("font_size")
               }}</label>
               <input
+                v-model.number="fontSize"
                 type="range"
                 min="12"
                 max="20"
                 step="1"
-                v-model.number="fontSize"
                 class="w-full"
-              />
-              <div class="text-xs text-gray-500 mt-1">{{ fontSize }}px</div>
+              >
+              <div class="text-xs text-gray-500 mt-1">
+                {{ fontSize }}px
+              </div>
             </div>
           </div>
           <div class="flex gap-3 justify-end mt-4">
-            <button class="btn-primary px-4 py-2" @click="saveGeneral">
+            <button
+              class="btn-primary px-4 py-2"
+              @click="saveGeneral"
+            >
               {{ t("save") }}
             </button>
-            <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" @click="resetGeneral">
+            <button
+              class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+              @click="resetGeneral"
+            >
               {{ t("reset") }}
             </button>
           </div>
         </div>
 
-        <details v-if="activeTab==='general'" class="glass p-4 rounded-xl shadow-sm self-start" open>
-          <summary class="cursor-pointer text-base font-medium text-gray-700">{{ t('config_docs') }}</summary>
+        <details
+          v-if="activeTab==='general'"
+          class="glass p-4 rounded-xl shadow-sm self-start"
+          open
+        >
+          <summary class="cursor-pointer text-base font-medium text-gray-700">
+            {{ t('config_docs') }}
+          </summary>
           <ul class="text-sm text-gray-600 space-y-2 mt-3">
-            <li><a class="hover:text-black" href="#" @click.prevent="openDoc('openai')">{{ t('docs_openai') }}</a></li>
-            <li><a class="hover:text-black" href="#" @click.prevent="openDoc('deepseek')">{{ t('docs_deepseek') }}</a></li>
-            <li><a class="hover:text-black" href="#" @click.prevent="openDoc('claude')">{{ t('docs_claude') }}</a></li>
-            <li><a class="hover:text-black" href="#" @click.prevent="openDoc('qianfan')">{{ t('docs_qianfan') }}</a></li>
-            <li><a class="hover:text-black" href="#" @click.prevent="openDoc('dashscope')">{{ t('docs_dashscope') }}</a></li>
-            <li><a class="hover:text-black" href="#" @click.prevent="openDoc('openai_compat')">{{ t('docs_openai_compat') }}</a></li>
+            <li>
+              <a
+                class="hover:text-black"
+                href="#"
+                @click.prevent="openDoc('openai')"
+              >{{ t('docs_openai') }}</a>
+            </li>
+            <li>
+              <a
+                class="hover:text-black"
+                href="#"
+                @click.prevent="openDoc('deepseek')"
+              >{{ t('docs_deepseek') }}</a>
+            </li>
+            <li>
+              <a
+                class="hover:text-black"
+                href="#"
+                @click.prevent="openDoc('claude')"
+              >{{ t('docs_claude') }}</a>
+            </li>
+            <li>
+              <a
+                class="hover:text-black"
+                href="#"
+                @click.prevent="openDoc('qianfan')"
+              >{{ t('docs_qianfan') }}</a>
+            </li>
+            <li>
+              <a
+                class="hover:text-black"
+                href="#"
+                @click.prevent="openDoc('dashscope')"
+              >{{ t('docs_dashscope') }}</a>
+            </li>
+            <li>
+              <a
+                class="hover:text-black"
+                href="#"
+                @click.prevent="openDoc('openai_compat')"
+              >{{ t('docs_openai_compat') }}</a>
+            </li>
           </ul>
         </details>
 
-        <details v-if="activeTab==='general'" class="glass p-4 rounded-xl shadow-sm self-start" open>
-          <summary class="cursor-pointer text-base font-medium text-gray-700">{{ t('data_manage') }}</summary>
-          <p class="text-sm text-gray-600 mt-3">{{ t('data_manage_desc') }}</p>
+        <details
+          v-if="activeTab==='general'"
+          class="glass p-4 rounded-xl shadow-sm self-start"
+          open
+        >
+          <summary class="cursor-pointer text-base font-medium text-gray-700">
+            {{ t('data_manage') }}
+          </summary>
+          <p class="text-sm text-gray-600 mt-3">
+            {{ t('data_manage_desc') }}
+          </p>
           <div class="mt-3">
-            <button type="button" class="px-3 py-2 bg-white border border-red-300 text-red-700 rounded-lg shadow-sm hover:border-red-400" @click="clearAllData">{{ t('clear_conversations') }}</button>
+            <button
+              type="button"
+              class="px-3 py-2 bg-white border border-red-300 text-red-700 rounded-lg shadow-sm hover:border-red-400"
+              @click="clearAllData"
+            >
+              {{ t('clear_conversations') }}
+            </button>
           </div>
         </details>
 
-        <div v-if="activeTab==='models'" class="space-y-6">
+        <div
+          v-if="activeTab==='models'"
+          class="space-y-6"
+        >
           <div class="flex items-center justify-end mb-3">
             <DialogRoot v-model:open="showAdd">
-              <DialogTrigger asChild>
-                <button class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" type="button" @click="openAdd">{{ t('add') }}</button>
+              <DialogTrigger as-child>
+                <button
+                  class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                  type="button"
+                  @click="openAdd"
+                >
+                  {{ t('add') }}
+                </button>
               </DialogTrigger>
               <DialogPortal to="body">
                 <DialogOverlay class="fixed inset-0 bg-black/10 backdrop-blur-sm" />
-                <DialogContent class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] glass w-[560px] max-w-[90vw] rounded-2xl p-6 shadow-sm" aria-describedby="add-model-desc">
-                  <DialogTitle class="text-base font-semibold mb-1">{{ t('add_model_config') }}</DialogTitle>
-                  <p id="add-model-desc" class="text-xs text-gray-500 mb-3">请填写必要参数后点击添加</p>
+                <DialogContent
+                  class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] glass w-[560px] max-w-[90vw] rounded-2xl p-6 shadow-sm"
+                  aria-describedby="add-model-desc"
+                >
+                  <DialogTitle class="text-base font-semibold mb-1">
+                    {{ t('add_model_config') }}
+                  </DialogTitle>
+                  <p
+                    id="add-model-desc"
+                    class="text-xs text-gray-500 mb-3"
+                  >
+                    请填写必要参数后点击添加
+                  </p>
                   <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     <div>
                       <label class="block text-xs text-gray-600 mb-1">{{ t('type') }}</label>
@@ -100,116 +196,158 @@
                         <SelectPortal to="body">
                           <SelectContent class="bg-white rounded-md shadow-md z-[1000] border">
                             <SelectViewport class="p-2">
-                              <SelectItem value="dashscope" class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"><SelectItemText>{{ t('dashscope_label') }}</SelectItemText></SelectItem>
-                              <SelectItem value="qianfan" class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"><SelectItemText>{{ t('qianfan_label') }}</SelectItemText></SelectItem>
-                              <SelectItem value="openai" class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"><SelectItemText>{{ t('openai_label') }}</SelectItemText></SelectItem>
-                              <SelectItem value="deepseek" class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"><SelectItemText>{{ t('deepseek_label') }}</SelectItemText></SelectItem>
-                              <SelectItem value="claude" class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"><SelectItemText>{{ t('claude_label') }}</SelectItemText></SelectItem>
+                              <SelectItem
+                                value="dashscope"
+                                class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"
+                              >
+                                <SelectItemText>{{ t('dashscope_label') }}</SelectItemText>
+                              </SelectItem>
+                              <SelectItem
+                                value="qianfan"
+                                class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"
+                              >
+                                <SelectItemText>{{ t('qianfan_label') }}</SelectItemText>
+                              </SelectItem>
+                              <SelectItem
+                                value="openai"
+                                class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"
+                              >
+                                <SelectItemText>{{ t('openai_label') }}</SelectItemText>
+                              </SelectItem>
+                              <SelectItem
+                                value="deepseek"
+                                class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"
+                              >
+                                <SelectItemText>{{ t('deepseek_label') }}</SelectItemText>
+                              </SelectItem>
+                              <SelectItem
+                                value="claude"
+                                class="outline-none rounded flex items-center h-7 px-3 text-green-700 cursor-pointer data-[highlighted]:bg-green-700 data-[highlighted]:text-white"
+                              >
+                                <SelectItemText>{{ t('claude_label') }}</SelectItemText>
+                              </SelectItem>
                             </SelectViewport>
                           </SelectContent>
                         </SelectPortal>
                       </SelectRoot>
-                      <div v-if="typeExists" class="text-xs text-red-600 mt-1">{{ t('type_exists_warning') }}</div>
+                      <div
+                        v-if="typeExists"
+                        class="text-xs text-red-600 mt-1"
+                      >
+                        {{ t('type_exists_warning') }}
+                      </div>
                     </div>
-                <template v-if="newType === 'qianfan'">
-                  <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >Access Key</label
-                    >
-                    <input
-                      v-model="form.accessKey"
-                      class="w-full h-9 border rounded-md px-3"
-                      placeholder="ak_..."
-                    />
+                    <template v-if="newType === 'qianfan'">
+                      <div>
+                        <label class="block text-xs text-gray-600 mb-1">Access Key</label>
+                        <input
+                          v-model="form.accessKey"
+                          class="w-full h-9 border rounded-md px-3"
+                          placeholder="ak_..."
+                        >
+                      </div>
+                      <div>
+                        <label class="block text-xs text-gray-600 mb-1">Secret Key</label>
+                        <input
+                          v-model="form.secretKey"
+                          class="w-full h-9 border rounded-md px-3"
+                          placeholder="sk_..."
+                        >
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div>
+                        <label class="block text-xs text-gray-600 mb-1">API Key</label>
+                        <input
+                          v-model="form.apiKey"
+                          class="w-full h-9 border rounded-md px-3"
+                          placeholder="sk_..."
+                        >
+                      </div>
+                      <div>
+                        <label class="block text-xs text-gray-600 mb-1">BaseUrl</label>
+                        <input
+                          v-model="form.baseUrl"
+                          class="w-full h-9 border rounded-md px-3"
+                          placeholder="https://api.example.com"
+                        >
+                      </div>
+                    </template>
+                    <div class="lg:col-span-2">
+                      <label class="block text-xs text-gray-600 mb-1">{{ t('alias_label') }}</label>
+                      <input
+                        v-model="form.alias"
+                        class="w-full h-9 border rounded-md px-3"
+                        :placeholder="t('alias_placeholder')"
+                      >
+                    </div>
+                    <div class="lg:col-span-2">
+                      <label class="block text-xs text-gray-600 mb-1">{{ t('models_label') }}</label>
+                      <input
+                        v-model="form.models"
+                        class="w-full h-9 border rounded-md px-3"
+                        :placeholder="t('models_placeholder')"
+                      >
+                    </div>
+                    <div>
+                      <label class="block text-xs text-gray-600 mb-1">{{ t('title_label') }}</label>
+                      <input
+                        v-model="form.title"
+                        class="w-full h-9 border rounded-md px-3"
+                        :placeholder="t('title_placeholder')"
+                      >
+                    </div>
+                    <div>
+                      <label class="block text-xs text-gray-600 mb-1">{{ t('avatar_label') }}</label>
+                      <input
+                        v-model="form.avatar"
+                        class="w-full h-9 border rounded-md px-3"
+                        :placeholder="t('avatar_placeholder')"
+                      >
+                    </div>
+                    <div class="lg:col-span-2">
+                      <label class="block text-xs text-gray-600 mb-1">{{ t('desc_label') }}</label>
+                      <input
+                        v-model="form.desc"
+                        class="w-full h-9 border rounded-md px-3"
+                        :placeholder="t('desc_placeholder')"
+                      >
+                    </div>
                   </div>
-                  <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >Secret Key</label
-                    >
-                    <input
-                      v-model="form.secretKey"
-                      class="w-full h-9 border rounded-md px-3"
-                      placeholder="sk_..."
-                    />
-                  </div>
-                </template>
-                <template v-else>
-                  <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >API Key</label
-                    >
-                    <input
-                      v-model="form.apiKey"
-                      class="w-full h-9 border rounded-md px-3"
-                      placeholder="sk_..."
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >BaseUrl</label
-                    >
-                    <input
-                      v-model="form.baseUrl"
-                      class="w-full h-9 border rounded-md px-3"
-                      placeholder="https://api.example.com"
-                    />
-                  </div>
-                </template>
-                <div class="lg:col-span-2">
-                  <label class="block text-xs text-gray-600 mb-1">{{ t('alias_label') }}</label>
-                  <input
-                    v-model="form.alias"
-                    class="w-full h-9 border rounded-md px-3"
-                    :placeholder="t('alias_placeholder')"
-                  />
-                </div>
-                <div class="lg:col-span-2">
-                  <label class="block text-xs text-gray-600 mb-1">{{ t('models_label') }}</label>
-                  <input
-                    v-model="form.models"
-                    class="w-full h-9 border rounded-md px-3"
-                    :placeholder="t('models_placeholder')"
-                  />
-                </div>
-                <div>
-                  <label class="block text-xs text-gray-600 mb-1">{{ t('title_label') }}</label>
-                  <input
-                    v-model="form.title"
-                    class="w-full h-9 border rounded-md px-3"
-                    :placeholder="t('title_placeholder')"
-                  />
-                </div>
-                <div>
-                  <label class="block text-xs text-gray-600 mb-1">{{ t('avatar_label') }}</label>
-                  <input
-                    v-model="form.avatar"
-                    class="w-full h-9 border rounded-md px-3"
-                    :placeholder="t('avatar_placeholder')"
-                  />
-                </div>
-                <div class="lg:col-span-2">
-                  <label class="block text-xs text-gray-600 mb-1">{{ t('desc_label') }}</label>
-                  <input
-                    v-model="form.desc"
-                    class="w-full h-9 border rounded-md px-3"
-                    :placeholder="t('desc_placeholder')"
-                  />
-                </div>
-              </div>
                   <div class="flex gap-3 justify-end mt-4">
-                    <button class="btn-primary px-4 py-2" type="button" :disabled="!validAdd" @click="addProvider">{{ t('add') }}</button>
-                    <DialogClose asChild>
-                <button class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" type="button" @click="cancelAdd">{{ t('cancel') }}</button>
+                    <button
+                      class="btn-primary px-4 py-2"
+                      type="button"
+                      :disabled="!validAdd"
+                      @click="addProvider"
+                    >
+                      {{ t('add') }}
+                    </button>
+                    <DialogClose as-child>
+                      <button
+                        class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                        type="button"
+                        @click="cancelAdd"
+                      >
+                        {{ t('cancel') }}
+                      </button>
                     </DialogClose>
                   </div>
                 </DialogContent>
               </DialogPortal>
             </DialogRoot>
           </div>
-          <div v-if="!hasModels" class="glass rounded-xl p-6 text-sm text-gray-600 flex items-center justify-between">
+          <div
+            v-if="!hasModels"
+            class="glass rounded-xl p-6 text-sm text-gray-600 flex items-center justify-between"
+          >
             <div>
-              <div class="text-base font-medium text-gray-700 mb-1">尚未配置任何模型</div>
-              <div class="text-gray-600">点击右上角“新增”，填写所需的 API Key、BaseUrl 与模型列表。</div>
+              <div class="text-base font-medium text-gray-700 mb-1">
+                尚未配置任何模型
+              </div>
+              <div class="text-gray-600">
+                点击右上角“新增”，填写所需的 API Key、BaseUrl 与模型列表。
+              </div>
             </div>
           </div>
           <div
@@ -223,7 +361,10 @@
             >
               <summary class="cursor-pointer font-medium">
                 {{ t('dashscope_title') }}
-                <span v-if="!hasModelsFor('dashscope')" class="text-xs text-gray-500">（未配置模型）</span>
+                <span
+                  v-if="!hasModelsFor('dashscope')"
+                  class="text-xs text-gray-500"
+                >（未配置模型）</span>
               </summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
@@ -232,7 +373,7 @@
                     v-model="providers.dashscope.apiKey"
                     class="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200"
                     placeholder="ak_..."
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('base_url') }}</label>
@@ -240,41 +381,41 @@
                     v-model="providers.dashscope.baseUrl"
                     class="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200"
                     placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('title_label') }}</label>
                   <input
                     v-model="providers.dashscope.title"
                     class="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 shadow-sm"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('avatar_label') }}</label>
                   <input
                     v-model="providers.dashscope.avatar"
                     class="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 shadow-sm"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2">
                   <label class="block text-xs text-gray-600 mb-1">{{ t('models_label') }}</label>
                   <input
                     :value="toModelsString(providers.dashscope.models)"
+                    class="w-full h-9 border border-gray-300 rounded-md px-3"
                     @input="
                       setModels(
                         'dashscope',
                         ($event.target as HTMLInputElement).value
                       )
                     "
-                    class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2 flex justify-end">
-                   <button
-                     class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
-                     type="button"
-                     @click="removeProvider('dashscope')"
-                   >
+                  <button
+                    class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                    type="button"
+                    @click="removeProvider('dashscope')"
+                  >
                     {{ t('remove') }}
                   </button>
                 </div>
@@ -289,7 +430,10 @@
             >
               <summary class="cursor-pointer font-medium">
                 {{ t('qianfan_title') }}
-                <span v-if="!hasModelsFor('qianfan')" class="text-xs text-gray-500">（未配置模型）</span>
+                <span
+                  v-if="!hasModelsFor('qianfan')"
+                  class="text-xs text-gray-500"
+                >（未配置模型）</span>
               </summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
@@ -298,7 +442,7 @@
                     v-model="providers.qianfan.accessKey"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="ak_..."
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('secret_key') }}</label>
@@ -306,41 +450,41 @@
                     v-model="providers.qianfan.secretKey"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="sk_..."
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('title_label') }}</label>
                   <input
                     v-model="providers.qianfan.title"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('avatar_label') }}</label>
                   <input
                     v-model="providers.qianfan.avatar"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2">
                   <label class="block text-xs text-gray-600 mb-1">{{ t('models_label') }}</label>
                   <input
                     :value="toModelsString(providers.qianfan.models)"
+                    class="w-full h-9 border border-gray-300 rounded-md px-3"
                     @input="
                       setModels(
                         'qianfan',
                         ($event.target as HTMLInputElement).value
                       )
                     "
-                    class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2 flex justify-end">
-                   <button
-                     class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
-                     type="button"
-                     @click="removeProvider('qianfan')"
-                   >
+                  <button
+                    class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                    type="button"
+                    @click="removeProvider('qianfan')"
+                  >
                     {{ t('remove') }}
                   </button>
                 </div>
@@ -353,7 +497,12 @@
               class="glass p-4 rounded-xl shadow-sm self-start"
               :open="hasModelsFor('openai')"
             >
-              <summary class="cursor-pointer font-medium">{{ t('openai_title') }}<span v-if="!hasModelsFor('openai')" class="text-xs text-gray-500">（未配置模型）</span></summary>
+              <summary class="cursor-pointer font-medium">
+                {{ t('openai_title') }}<span
+                  v-if="!hasModelsFor('openai')"
+                  class="text-xs text-gray-500"
+                >（未配置模型）</span>
+              </summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('api_key') }}</label>
@@ -361,7 +510,7 @@
                     v-model="providers.openai.apiKey"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="sk-..."
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('base_url') }}</label>
@@ -369,104 +518,106 @@
                     v-model="providers.openai.baseUrl"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="https://api.openai.com/v1"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('title_label') }}</label>
                   <input
                     v-model="providers.openai.title"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('avatar_label') }}</label>
                   <input
                     v-model="providers.openai.avatar"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2">
                   <label class="block text-xs text-gray-600 mb-1">{{ t('models_label') }}</label>
                   <input
                     :value="toModelsString(providers.openai.models)"
+                    class="w-full h-9 border border-gray-300 rounded-md px-3"
                     @input="
                       setModels(
                         'openai',
                         ($event.target as HTMLInputElement).value
                       )
                     "
-                    class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2 flex justify-end">
-                   <button
-                     class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
-                     type="button"
-                     @click="removeProvider('openai')"
-                   >
+                  <button
+                    class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                    type="button"
+                    @click="removeProvider('openai')"
+                  >
                     {{ t('remove') }}
                   </button>
                 </div>
               </div>
             </details>
 
-            <template v-for="key in openaiCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start" :open="hasModelsFor(key)">
+            <template
+              v-for="key in openaiCustomKeys"
+              :key="key"
+            >
+              <details
+                :id="key"
+                class="glass p-4 rounded-xl shadow-sm self-start"
+                :open="hasModelsFor(key)"
+              >
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('openai_title') }}（{{ key }}）
-                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
+                  <span
+                    v-if="!hasModelsFor(key)"
+                    class="text-xs text-gray-500"
+                  >（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >API Key</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">API Key</label>
                     <input
                       v-model="providers[key].apiKey"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="sk-..."
-                    />
+                    >
                   </div>
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >BaseUrl</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">BaseUrl</label>
                     <input
                       v-model="providers[key].baseUrl"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="https://api.example.com"
-                    />
+                    >
                   </div>
                   <div>
                     <label class="block text-xs text-gray-600 mb-1">标题</label>
                     <input
                       v-model="providers[key].title"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
-                    />
+                    >
                   </div>
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >头像URL</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">头像URL</label>
                     <input
                       v-model="providers[key].avatar"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2">
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >模型列表（逗号分隔）</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">模型列表（逗号分隔）</label>
                     <input
                       :value="toModelsString(providers[key].models)"
+                      class="w-full h-9 border border-gray-300 rounded-md px-3"
                       @input="
                         setModels(
                           key,
                           ($event.target as HTMLInputElement).value
                         )
                       "
-                      class="w-full h-9 border border-gray-300 rounded-md px-3"
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2 flex justify-end">
                     <button
@@ -474,54 +625,58 @@
                       type="button"
                       @click="removeProvider(key)"
                     >
-                    {{ t('remove') }}
+                      {{ t('remove') }}
                     </button>
                   </div>
                 </div>
               </details>
             </template>
 
-            <template v-for="key in dashscopeCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start" :open="hasModelsFor(key)">
+            <template
+              v-for="key in dashscopeCustomKeys"
+              :key="key"
+            >
+              <details
+                :id="key"
+                class="glass p-4 rounded-xl shadow-sm self-start"
+                :open="hasModelsFor(key)"
+              >
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('dashscope_title') }}（{{ key }}）
-                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
+                  <span
+                    v-if="!hasModelsFor(key)"
+                    class="text-xs text-gray-500"
+                  >（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >API Key</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">API Key</label>
                     <input
                       v-model="providers[key].apiKey"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="ak_..."
-                    />
+                    >
                   </div>
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >BaseUrl</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">BaseUrl</label>
                     <input
                       v-model="providers[key].baseUrl"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1"
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2">
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >模型列表（逗号分隔）</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">模型列表（逗号分隔）</label>
                     <input
                       :value="toModelsString(providers[key].models)"
+                      class="w-full h-9 border border-gray-300 rounded-md px-3"
                       @input="
                         setModels(
                           key,
                           ($event.target as HTMLInputElement).value
                         )
                       "
-                      class="w-full h-9 border border-gray-300 rounded-md px-3"
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2 flex justify-end">
                     <button
@@ -536,47 +691,51 @@
               </details>
             </template>
 
-            <template v-for="key in deepseekCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow-sm self-start" :open="hasModelsFor(key)">
+            <template
+              v-for="key in deepseekCustomKeys"
+              :key="key"
+            >
+              <details
+                :id="key"
+                class="glass p-4 rounded-xl shadow-sm self-start"
+                :open="hasModelsFor(key)"
+              >
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('deepseek_title') }}（{{ key }}）
-                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
+                  <span
+                    v-if="!hasModelsFor(key)"
+                    class="text-xs text-gray-500"
+                  >（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >API Key</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">API Key</label>
                     <input
                       v-model="providers[key].apiKey"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="ds_..."
-                    />
+                    >
                   </div>
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >BaseUrl</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">BaseUrl</label>
                     <input
                       v-model="providers[key].baseUrl"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="https://api.deepseek.com"
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2">
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >模型列表（逗号分隔）</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">模型列表（逗号分隔）</label>
                     <input
                       :value="toModelsString(providers[key].models)"
+                      class="w-full h-9 border border-gray-300 rounded-md px-3"
                       @input="
                         setModels(
                           key,
                           ($event.target as HTMLInputElement).value
                         )
                       "
-                      class="w-full h-9 border border-gray-300 rounded-md px-3"
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2 flex justify-end">
                     <button
@@ -591,47 +750,51 @@
               </details>
             </template>
 
-            <template v-for="key in qianfanCustomKeys" :key="key">
-              <details :id="key" class="glass p-4 rounded-xl shadow sm self-start" :open="hasModelsFor(key)">
+            <template
+              v-for="key in qianfanCustomKeys"
+              :key="key"
+            >
+              <details
+                :id="key"
+                class="glass p-4 rounded-xl shadow sm self-start"
+                :open="hasModelsFor(key)"
+              >
                 <summary class="cursor-pointer font-medium">
                   {{ providers[key].title || t('qianfan_title') }}（{{ key }}）
-                  <span v-if="!hasModelsFor(key)" class="text-xs text-gray-500">（未配置模型）</span>
+                  <span
+                    v-if="!hasModelsFor(key)"
+                    class="text-xs text-gray-500"
+                  >（未配置模型）</span>
                 </summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >Access Key</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">Access Key</label>
                     <input
                       v-model="providers[key].accessKey"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="ak_..."
-                    />
+                    >
                   </div>
                   <div>
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >Secret Key</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">Secret Key</label>
                     <input
                       v-model="providers[key].secretKey"
                       class="w-full h-9 border border-gray-300 rounded-md px-3"
                       placeholder="sk_..."
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2">
-                    <label class="block text-xs text-gray-600 mb-1"
-                      >模型列表（逗号分隔）</label
-                    >
+                    <label class="block text-xs text-gray-600 mb-1">模型列表（逗号分隔）</label>
                     <input
                       :value="toModelsString(providers[key].models)"
+                      class="w-full h-9 border border-gray-300 rounded-md px-3"
                       @input="
                         setModels(
                           key,
                           ($event.target as HTMLInputElement).value
                         )
                       "
-                      class="w-full h-9 border border-gray-300 rounded-md px-3"
-                    />
+                    >
                   </div>
                   <div class="lg:col-span-2 flex justify-end">
                     <button
@@ -652,7 +815,12 @@
               class="glass p-4 rounded-xl shadow-sm self-start"
               :open="hasModelsFor('deepseek')"
             >
-              <summary class="cursor-pointer font-medium">{{ t('deepseek_title') }}<span v-if="!hasModelsFor('deepseek')" class="text-xs text-gray-500">（未配置模型）</span></summary>
+              <summary class="cursor-pointer font-medium">
+                {{ t('deepseek_title') }}<span
+                  v-if="!hasModelsFor('deepseek')"
+                  class="text-xs text-gray-500"
+                >（未配置模型）</span>
+              </summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('api_key') }}</label>
@@ -660,7 +828,7 @@
                     v-model="providers.deepseek.apiKey"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="ds_..."
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('base_url') }}</label>
@@ -668,41 +836,41 @@
                     v-model="providers.deepseek.baseUrl"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="https://api.deepseek.com"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('title_label') }}</label>
                   <input
                     v-model="providers.deepseek.title"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('avatar_label') }}</label>
                   <input
                     v-model="providers.deepseek.avatar"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2">
                   <label class="block text-xs text-gray-600 mb-1">{{ t('models_label') }}</label>
                   <input
                     :value="toModelsString(providers.deepseek.models)"
+                    class="w-full h-9 border border-gray-300 rounded-md px-3"
                     @input="
                       setModels(
                         'deepseek',
                         ($event.target as HTMLInputElement).value
                       )
                     "
-                    class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2 flex justify-end">
-                   <button
-                     class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
-                     type="button"
-                     @click="removeProvider('deepseek')"
-                   >
+                  <button
+                    class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                    type="button"
+                    @click="removeProvider('deepseek')"
+                  >
                     {{ t('remove') }}
                   </button>
                 </div>
@@ -715,7 +883,12 @@
               class="glass p-4 rounded-xl shadow-sm self-start"
               :open="hasModelsFor('claude')"
             >
-              <summary class="cursor-pointer font-medium">{{ t('claude_title') }}<span v-if="!hasModelsFor('claude')" class="text-xs text-gray-500">（未配置模型）</span></summary>
+              <summary class="cursor-pointer font-medium">
+                {{ t('claude_title') }}<span
+                  v-if="!hasModelsFor('claude')"
+                  class="text-xs text-gray-500"
+                >（未配置模型）</span>
+              </summary>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('api_key') }}</label>
@@ -723,7 +896,7 @@
                     v-model="providers.claude.apiKey"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="..."
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('base_url') }}</label>
@@ -731,41 +904,41 @@
                     v-model="providers.claude.baseUrl"
                     class="w-full h-9 border border-gray-300 rounded-md px-3 focus:outline-none focus:ring-2 focus:ring-[#34C759]/30"
                     placeholder="https://api.anthropic.com"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('title_label') }}</label>
                   <input
                     v-model="providers.claude.title"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div>
                   <label class="block text-xs text-gray-600 mb-1">{{ t('avatar_label') }}</label>
                   <input
                     v-model="providers.claude.avatar"
                     class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2">
                   <label class="block text-xs text-gray-600 mb-1">{{ t('models_label') }}</label>
                   <input
                     :value="toModelsString(providers.claude.models)"
+                    class="w-full h-9 border border-gray-300 rounded-md px-3"
                     @input="
                       setModels(
                         'claude',
                         ($event.target as HTMLInputElement).value
                       )
                     "
-                    class="w-full h-9 border border-gray-300 rounded-md px-3"
-                  />
+                  >
                 </div>
                 <div class="lg:col-span-2 flex justify-end">
-                   <button
-                     class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
-                     type="button"
-                     @click="removeProvider('claude')"
-                   >
+                  <button
+                    class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                    type="button"
+                    @click="removeProvider('claude')"
+                  >
                     {{ t('remove') }}
                   </button>
                 </div>
@@ -773,52 +946,148 @@
             </details>
           </div>
 
-        <div v-if="activeTab==='models' && hasModels" class="flex gap-3 justify-end mt-4">
-          <button class="btn-primary px-4 py-2" @click="saveModels">
-            {{ t("save") }}
-          </button>
-          <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300" @click="resetModels">
-            {{ t("reset") }}
-          </button>
-        </div>
+          <div
+            v-if="activeTab==='models' && hasModels"
+            class="flex gap-3 justify-end mt-4"
+          >
+            <button
+              class="btn-primary px-4 py-2"
+              @click="saveModels"
+            >
+              {{ t("save") }}
+            </button>
+            <button
+              class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+              @click="resetModels"
+            >
+              {{ t("reset") }}
+            </button>
+          </div>
         </div>
       </section>
 
-      <aside v-if="activeTab==='models'" class="hidden lg:block lg:col-span-3 xl:col-span-3">
+      <aside
+        v-if="activeTab==='models'"
+        class="hidden lg:block lg:col-span-3 xl:col-span-3"
+      >
         <div class="glass rounded-2xl p-6 space-y-4 h-full">
-          <details class="glass p-4 rounded-xl shadow-sm self-start" open>
-            <summary class="cursor-pointer font-medium">{{ t('quick_nav') }}</summary>
+          <details
+            class="glass p-4 rounded-xl shadow-sm self-start"
+            open
+          >
+            <summary class="cursor-pointer font-medium">
+              {{ t('quick_nav') }}
+            </summary>
             <ul class="text-sm text-gray-600 space-y-2 mt-3">
-              <li><a class="hover:text-black" href="#" @click.prevent="goSection('dashscope')">通义千问</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="goSection('qianfan')">文心一言</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="goSection('openai')">OpenAI</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="goSection('deepseek')">DeepSeek</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="goSection('claude')">Claude</a></li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="goSection('dashscope')"
+                >通义千问</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="goSection('qianfan')"
+                >文心一言</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="goSection('openai')"
+                >OpenAI</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="goSection('deepseek')"
+                >DeepSeek</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="goSection('claude')"
+                >Claude</a>
+              </li>
             </ul>
           </details>
-          <details class="glass p-4 rounded-xl shadow-sm self-start" open>
-            <summary class="cursor-pointer font-medium">{{ t('tips_title') }}</summary>
+          <details
+            class="glass p-4 rounded-xl shadow-sm self-start"
+            open
+          >
+            <summary class="cursor-pointer font-medium">
+              {{ t('tips_title') }}
+            </summary>
             <ul class="text-sm text-gray-600 space-y-2 mt-3">
               <li>{{ t('tip_local_only') }}</li>
               <li>{{ t('tip_baseurl') }}</li>
               <li>{{ t('tip_apply_immediately') }}</li>
             </ul>
           </details>
-          <details class="glass p-4 rounded-xl shadow-sm self-start" open>
-            <summary class="cursor-pointer font-medium">{{ t('config_docs') }}</summary>
+          <details
+            class="glass p-4 rounded-xl shadow-sm self-start"
+            open
+          >
+            <summary class="cursor-pointer font-medium">
+              {{ t('config_docs') }}
+            </summary>
             <ul class="text-sm text-gray-600 space-y-2 mt-3">
-              <li><a class="hover:text-black" href="#" @click.prevent="openDoc('openai')">{{ t('docs_openai') }}</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="openDoc('deepseek')">{{ t('docs_deepseek') }}</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="openDoc('claude')">{{ t('docs_claude') }}</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="openDoc('qianfan')">{{ t('docs_qianfan') }}</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="openDoc('dashscope')">{{ t('docs_dashscope') }}</a></li>
-              <li><a class="hover:text-black" href="#" @click.prevent="openDoc('openai_compat')">{{ t('docs_openai_compat') }}</a></li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="openDoc('openai')"
+                >{{ t('docs_openai') }}</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="openDoc('deepseek')"
+                >{{ t('docs_deepseek') }}</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="openDoc('claude')"
+                >{{ t('docs_claude') }}</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="openDoc('qianfan')"
+                >{{ t('docs_qianfan') }}</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="openDoc('dashscope')"
+                >{{ t('docs_dashscope') }}</a>
+              </li>
+              <li>
+                <a
+                  class="hover:text-black"
+                  href="#"
+                  @click.prevent="openDoc('openai_compat')"
+                >{{ t('docs_openai_compat') }}</a>
+              </li>
             </ul>
           </details>
         </div>
       </aside>
     </div>
-    <div v-if="toastMsg" class="fixed top-6 left-1/2 -translate-x-1/2 bg-green-600 text-white rounded-xl shadow-lg px-4 py-2 z-[2000]">
+    <div
+      v-if="toastMsg"
+      class="fixed top-6 left-1/2 -translate-x-1/2 bg-green-600 text-white rounded-xl shadow-lg px-4 py-2 z-[2000]"
+    >
       {{ toastMsg }}
     </div>
   </div>

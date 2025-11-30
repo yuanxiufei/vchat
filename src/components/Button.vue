@@ -7,8 +7,12 @@
     :class="[colorClasses, sizeClasses]"
     :disabled="disabled || loading"
   >
-    <Icon :icon="iconWithLoading" class="mr-2" v-if="iconWithLoading" />
-    <slot></slot>
+    <Icon
+      v-if="iconWithLoading"
+      :icon="iconWithLoading"
+      class="mr-2"
+    />
+    <slot />
   </button>
 </template>
 <script setup lang="ts">
@@ -34,7 +38,9 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<ButtonProps>(), {
-  color: 'green'
+  color: 'green',
+  size: undefined as any,
+  iconName: ''
 })
 const colorVariants: Record<ButtonColor, any> = {
   'green' : {

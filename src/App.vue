@@ -10,12 +10,19 @@
       </div>
       <div class="h-[10%] grid grid-cols-2 gap-2 p-3">
         <RouterLink to="/">
-          <Button icon-name="radix-icons:chat-bubble" class="w-full surface">
+          <Button
+            icon-name="radix-icons:chat-bubble"
+            class="w-full surface"
+          >
             {{ t('new_conversation') }}
           </Button>
         </RouterLink>
         <RouterLink to="/settings">
-          <Button icon-name="radix-icons:gear" plain class="w-full surface">
+          <Button
+            icon-name="radix-icons:gear"
+            plain
+            class="w-full surface"
+          >
             {{ t('settings') }}
           </Button>
         </RouterLink>
@@ -60,16 +67,17 @@ onMounted(async () => {
 })
 
 const isFullScreen = ref(false)
-function onKey(e: KeyboardEvent){ if(e.key === 'Escape' && isFullScreen.value) (window as any).electronAPI.setFullScreen(false) }
+function onKey(e: KeyboardEvent){ if(e.key === 'Escape' && isFullScreen.value){ const api = (window as any).electronAPI; if(api) api.setFullScreen(false) } }
 onMounted(()=>{
-  (window as any).electronAPI.onWindowFullScreen((state:boolean)=>{ isFullScreen.value = state })
-  document.addEventListener('keydown', onKey)
-  ;(window as any).electronAPI.onConfigUpdated((cfg:{ fontSize:number })=>{
-    document.documentElement.style.fontSize = `${Number(cfg.fontSize) || 14}px`
-  })
-  ;(window as any).electronAPI.onConfigUpdated(async (cfg:{ language:string })=>{ await setLang(cfg.language); document.title = t('app_title') })
-  ;(window as any).electronAPI.onMenuNewConversation(()=>{ router.push('/') })
-  ;(window as any).electronAPI.onMenuOpenSettings(()=>{ router.push('/settings') })
+  const api = (window as any).electronAPI
+  if (api) {
+    api.onWindowFullScreen((state:boolean)=>{ isFullScreen.value = state })
+    document.addEventListener('keydown', onKey)
+    api.onConfigUpdated((cfg:{ fontSize:number })=>{ document.documentElement.style.fontSize = `${Number(cfg.fontSize) || 14}px` })
+    api.onConfigUpdated(async (cfg:{ language:string })=>{ await setLang(cfg.language); document.title = t('app_title') })
+    api.onMenuNewConversation(()=>{ router.push('/') })
+    api.onMenuOpenSettings(()=>{ router.push('/settings') })
+  }
 })
 onUnmounted(()=>{ document.removeEventListener('keydown', onKey) })
 console.log('🐝 This message is being logged by "App.vue", included via Vite');

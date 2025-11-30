@@ -1,25 +1,51 @@
 <!-- 会话页：展示当前会话标题与消息列表，支持图片复制、流式生成与自动滚动到底部 -->
 <template>
   <div class="w-full h-full flex flex-col overflow-hidden">
-    <div v-if="conversation" class="glass rounded-xl px-4 py-4  flex items-center justify-between">
-      <h3 class="font-semibold text-gray-900 flex-1 min-w-0 truncate">{{ conversation?.title }}</h3>
+    <div
+      v-if="conversation"
+      class="glass rounded-xl px-4 py-4  flex items-center justify-between"
+    >
+      <h3 class="font-semibold text-gray-900 flex-1 min-w-0 truncate">
+        {{ conversation?.title }}
+      </h3>
       <div class="flex items-center gap-3 flex-shrink-0">
-        <ProviderSelect v-if="providerItems.length" v-model="currentPick" :items="providerItems" size="sm" variant="pill" :menuWidth="260" :menuMax="280" />
+        <ProviderSelect
+          v-if="providerItems.length"
+          v-model="currentPick"
+          :items="providerItems"
+          size="sm"
+          variant="pill"
+          :menu-width="260"
+          :menu-max="280"
+        />
         <span class="whitespace-nowrap text-sm text-gray-700 ml-2 flex-shrink-0">{{ dayjs(conversation?.createdAt).format("YYYY-MM-DD HH:mm") }}</span>
       </div>
     </div>
     <div class="flex-1 min-h-0 p-4 overflow-y-auto content-scroll pr-2">
-      <MessageList :messages="filterMessages" ref="messageListRef" />
+      <MessageList
+        ref="messageListRef"
+        :messages="filterMessages"
+      />
     </div>
-    <div v-if="!canSend" class="mb-2 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl px-3 py-2 flex items-center justify-between">
-      <div class="text-xs">{{ t('no_models_tip') }}</div>
-      <button class="px-2 py-1 text-xs bg-white border border-yellow-300 rounded-md hover:bg-yellow-100" @click="goSettings">{{ t('settings') }}</button>
+    <div
+      v-if="!canSend"
+      class="mb-2 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl px-3 py-2 flex items-center justify-between"
+    >
+      <div class="text-xs">
+        {{ t('no_models_tip') }}
+      </div>
+      <button
+        class="px-2 py-1 text-xs bg-white border border-yellow-300 rounded-md hover:bg-yellow-100"
+        @click="goSettings"
+      >
+        {{ t('settings') }}
+      </button>
     </div>
     <div class="mt-3">
       <MessageInput
-        @send="sendNewMEssage"
         v-model="inputValue"
         :disabled="messageStore.isMessageLoading || !canSend"
+        @send="sendNewMEssage"
       />
     </div>
   </div>

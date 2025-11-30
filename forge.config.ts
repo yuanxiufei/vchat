@@ -64,16 +64,20 @@ const config: ForgeConfig = {
         },
       ],
     }),
-    // Fuses：在打包阶段启用/禁用 Electron 功能（提升安全）
-    new FusesPlugin({
-      version: FuseVersion.V1, // 使用 V1 版本的 Fuse
-      [FuseV1Options.RunAsNode]: false, // 禁止将 Electron 当作 Node 运行
-      [FuseV1Options.EnableCookieEncryption]: true, // 启用 Cookie 加密
-      [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false, // 禁用 NODE_OPTIONS 环境变量
-      [FuseV1Options.EnableNodeCliInspectArguments]: false, // 禁用 --inspect 等调试 CLI 参数
-      [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true, // 验证内嵌 asar 的完整性
-      [FuseV1Options.OnlyLoadAppFromAsar]: true, // 仅从 asar 加载应用，阻止散文件加载（更安全）
-    }),
+    // 仅在打包/制作安装包阶段启用 Fuses，避免与 Vite 开发插件冲突
+    ...(process.argv.includes('make') || process.argv.includes('package') || process.argv.includes('publish')
+      ? [
+          new FusesPlugin({
+            version: FuseVersion.V1,
+            [FuseV1Options.RunAsNode]: false,
+            [FuseV1Options.EnableCookieEncryption]: true,
+            [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+            [FuseV1Options.EnableNodeCliInspectArguments]: false,
+            [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
+            [FuseV1Options.OnlyLoadAppFromAsar]: true,
+          }),
+        ]
+      : []),
   ],
 };
 
