@@ -8,7 +8,7 @@
           共 {{ conversationStore.totalNumber }} 条对话
         </div>
       </div>
-      <div class="h-[10%] grid grid-cols-3 gap-2 p-3">
+      <div class="h-[10%] grid grid-cols-2 gap-2 p-3">
         <RouterLink to="/">
           <Button
             icon-name="radix-icons:chat-bubble"
@@ -26,14 +26,7 @@
             {{ t('settings') }}
           </Button>
         </RouterLink>
-        <Button
-          icon-name="radix-icons:exit"
-          plain
-          class="w-full surface"
-          @click="quitApp"
-        >
-          {{ t('quit_app') }}
-        </Button>
+        
       </div>
     </div>
     <div class="h-full flex-1 ml-4 overflow-y-auto content-scroll p-4">
@@ -89,7 +82,6 @@ onMounted(()=>{
 })
 onUnmounted(()=>{ document.removeEventListener('keydown', onKey) })
 console.log('🐝 This message is being logged by "App.vue", included via Vite');
-function quitApp(){ const api = (window as any).electronAPI; if(api) api.quitApp() }
 </script>
 
 <style scoped></style>

@@ -51,15 +51,7 @@ export const createWindow = async () => {
   ]))
   appTray.on('click', () => { if (!mainWindow.isDestroyed()) { mainWindow.show(); mainWindow.focus() } })
 
-  
-  
-  
-  
-  
-  
-  
-  const initialCfg2 = await readCfg()
-  buildAppMenu(mainWindow, initialCfg2.language as any)
+  buildAppMenu(mainWindow, initialCfg.language as any)
   registerGlobalShortcuts(() => (mainWindow?.isDestroyed() ? null : mainWindow))
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -131,6 +123,23 @@ export const createWindow = async () => {
     }
     await writeCfg(next)
     buildAppMenu(mainWindow, next.language as any)
+    try {
+      const tray: Tray | null = (global as any).__appTray__ || null
+      if (tray) {
+        const TL = next.language === 'zh-CN'
+          ? { open: '打开窗口', newConv: '新建对话', settings: '设置', quit: '退出' }
+          : { open: 'Open Window', newConv: 'New Conversation', settings: 'Settings', quit: 'Quit' }
+        tray.setToolTip(next.language === 'zh-CN' ? '智聊' : 'Smart Chat')
+        tray.setContextMenu(Menu.buildFromTemplate([
+          { label: TL.open, click: () => { if (!mainWindow.isDestroyed()) { mainWindow.show(); mainWindow.focus() } } },
+          { type: 'separator' },
+          { label: TL.newConv, click: () => mainWindow.webContents.send('menu:new-conversation') },
+          { label: TL.settings, click: () => mainWindow.webContents.send('menu:open-settings') },
+          { type: 'separator' },
+          { label: TL.quit, click: () => { isQuitting = true; app.quit() } },
+        ]))
+      }
+    } catch {}
     mainWindow.webContents.send('config:updated', next)
     return next
   })
