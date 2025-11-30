@@ -87,11 +87,17 @@ npm run start
 
 ## 密钥管理与安全
 
-- 建议通过环境变量或设置页管理各模型密钥，避免将密钥写入仓库。
-- 环境变量方式：复制 `.env.example` 为 `.env.local` 并填写相应值；主进程已启用 `dotenv` 自动加载。
-- 支持变量：`OPENAI_API_KEY`、`OPENAI_API_BASE_URL`、`DEEPSEEK_API_KEY`、`DEEPSEEK_API_BASE_URL`、`CLAUDE_API_KEY`、`CLAUDE_API_BASE_URL`、`QIANFAN_ACCESS_KEY`、`QIANFAN_SECRET_KEY`、`ALI_API_KEY`、`ALI_API_BASE_URL`。
-- 设置页方式：密钥保存在系统用户目录 `config.json`，模板 `src/utils/config.json` 始终脱敏。
-- `.gitignore` 已忽略 `.env.local`/`.env.*.local` 等文件，避免敏感信息入库。
+- 不再使用环境变量或 `dotenv` 读取密钥，所有密钥均通过“应用设置”管理。
+- 存储位置：`Electron app.getPath('userData')/config.json`（仅本机），示例模板位于 `src/utils/config.json`（始终脱敏）。
+- 读写逻辑：主进程合并模板与用户配置，优先使用用户配置；保存时会写入用户目录，并将模板中的敏感字段清空。
+- 仅从 `asar` 加载应用代码（Forge Fuses 已启用），不会从散文件或外部 `node_modules` 读取依赖。
+- 仓库不包含任何密钥，提交前请确保未将用户目录的 `config.json` 复制到仓库。
+- 清除密钥：在设置页删除对应提供器的密钥即可，或手动删除用户目录的 `config.json`。
+- 备份迁移：备份用户目录 `config.json` 到新机器的相同路径即可恢复配置。
+- 提供器必填项：
+  - 千帆：`accessKey`、`secretKey`；模型列表 `models`
+  - 通义 / OpenAI / DeepSeek / Claude：`apiKey`、`baseUrl`；模型列表 `models`
+  - 未填写或缺失必填项时，该提供器不可用，界面会给出提示。
 
 ## 版权与许可
 
@@ -115,10 +121,8 @@ npm run start
 
 ## 密钥管理与安全
 
-- 建议通过环境变量或设置页管理各模型的密钥，避免将密钥写入仓库。
-- 环境变量方式：复制 `.env.example` 为 `.env.local` 并填写相应值；主进程已启用 `dotenv` 自动加载。
-- 支持变量：`OPENAI_API_KEY`、`OPENAI_API_BASE_URL`、`DEEPSEEK_API_KEY`、`DEEPSEEK_API_BASE_URL`、`CLAUDE_API_KEY`、`CLAUDE_API_BASE_URL`、`QIANFAN_ACCESS_KEY`、`QIANFAN_SECRET_KEY`、`ALI_API_KEY`、`ALI_API_BASE_URL`。
-- 设置页方式：密钥会保存在系统用户目录下的 `config.json`，并不会写入仓库；模板 `src/utils/config.json` 始终保持无敏感信息。
-- 仓库已忽略 `.env.local`/`.env.*.local` 等文件，避免敏感信息入库。
+- 项目不依赖环境变量；请在“应用设置”填写密钥与 BaseUrl。
+- 用户密钥仅保存在 `userData/config.json`，模板始终脱敏；打包产物不会包含真实密钥。
+- 删除/更换密钥可在设置页操作，或删除 `config.json` 后重启应用。
 
 
