@@ -75,6 +75,18 @@
       @click.stop
     >
   </div>
+  <div v-if="codeOverlayVisible" class="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center" @click="closeCodeOverlay">
+    <div class="w-[90vw] h-[80vh] surface relative" @click.stop>
+      <button class="absolute top-3 right-3 px-3 py-1 rounded bg-white border border-gray-200" @click="closeCodeOverlay">✕</button>
+      <div ref="codeOverlayMount" class="w-full h-full"></div>
+    </div>
+  </div>
+  <div v-if="katexOverlayVisible" class="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center" @click="closeKatexOverlay">
+    <div class="w-[90vw] h-[80vh] surface relative overflow-auto" @click.stop>
+      <button class="absolute top-3 right-3 px-3 py-1 rounded bg-white border border-gray-200" @click="closeKatexOverlay">✕</button>
+      <div class="p-6 text-2xl" v-html="katexOverlayHtml"></div>
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
 // 类型与组件
@@ -89,6 +101,7 @@ import { onMounted, nextTick, ref, watch } from "vue";
 import mermaid from "mermaid";
 import * as monaco from "monaco-editor";
 import { codeToHtml } from 'shiki'
+import 'katex/dist/katex.min.css'
 // 接收消息列表
 const props = defineProps<{
     messages: MessageProps[];
@@ -96,6 +109,41 @@ const props = defineProps<{
 // 根容器：渲染后用于选择内部 DOM 进行增强
 const root = ref<HTMLElement | null>(null);
 const previewSrc = ref<string | null>(null)
+const codeOverlayVisible = ref(false)
+const codeOverlayMount = ref<HTMLElement | null>(null)
+let codeOverlayEditor: monaco.editor.IStandaloneCodeEditor | null = null
+function openCodeOverlay(language: string, value: string) {
+  codeOverlayVisible.value = true
+  nextTick(() => {
+    if (codeOverlayEditor) { try { codeOverlayEditor.dispose() } catch {} ; codeOverlayEditor = null }
+    const el = codeOverlayMount.value
+    if (!el) return
+    codeOverlayEditor = monaco.editor.create(el, {
+      value,
+      language,
+      readOnly: true,
+      wordWrap: 'on',
+      automaticLayout: true,
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      scrollbar: { alwaysConsumeMouseWheel: false },
+    })
+  })
+}
+function closeCodeOverlay() {
+  codeOverlayVisible.value = false
+  if (codeOverlayEditor) { try { codeOverlayEditor.dispose() } catch {} ; codeOverlayEditor = null }
+}
+const katexOverlayVisible = ref(false)
+const katexOverlayHtml = ref('')
+function openKatexOverlay(html: string) {
+  katexOverlayHtml.value = html
+  katexOverlayVisible.value = true
+}
+function closeKatexOverlay() {
+  katexOverlayVisible.value = false
+  katexOverlayHtml.value = ''
+}
 // mermaid 初始化：手动渲染 + 宽松安全级别（避免 Electron/DevServer 下动态加载受限）
 mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
 // 每次内容更新后：增强 mermaid 与 monaco 渲染
@@ -118,6 +166,30 @@ async function enhance() {
     if (mermaidBlocks.length) {
       await mermaid.run({ nodes: Array.from(mermaidBlocks) as HTMLElement[] })
     }
+    const katexElems = el.querySelectorAll('.katex-display, .katex')
+    katexElems.forEach((k) => {
+      const target = (k.closest('.katex-display') as HTMLElement) || (k as HTMLElement)
+      if (!target) return
+      if (target.querySelector('button[data-katex-fs="1"]')) return
+      target.style.position = 'relative'
+      const fsBtn = document.createElement('button')
+      fsBtn.setAttribute('type','button')
+      fsBtn.setAttribute('data-katex-fs','1')
+      fsBtn.title = 'Expand'
+      fsBtn.textContent = '⤢'
+      fsBtn.style.position = 'absolute'
+      fsBtn.style.top = '-8px'
+      fsBtn.style.right = '-8px'
+      fsBtn.style.zIndex = '10'
+      fsBtn.style.background = 'rgba(255,255,255,0.9)'
+      fsBtn.style.border = '1px solid rgba(0,0,0,0.1)'
+      fsBtn.style.borderRadius = '6px'
+      fsBtn.style.padding = '2px 6px'
+      fsBtn.style.cursor = 'pointer'
+      const htmlForOverlay = target.innerHTML
+      fsBtn.addEventListener('click', () => openKatexOverlay(`<div class="katex-display">${htmlForOverlay}</div>`))
+      target.appendChild(fsBtn)
+    })
     // 查找需要用 Monaco 展示的代码块：语言前缀使用 language-monaco-<lang>
     const monacoBlocks = el.querySelectorAll(
         'pre > code[class*="language-monaco-"]'
@@ -139,6 +211,8 @@ async function enhance() {
         mount.style.display = "block";
         mount.style.width = "100%";
         mount.style.boxSizing = "border-box";
+        mount.style.position = 'relative'
+        mount.className = 'monaco-editor-container'
         pre.replaceWith(mount);
         // 只读编辑器，自动布局，关闭迷你地图
         const editor = monaco.editor.create(mount, {
@@ -159,6 +233,22 @@ async function enhance() {
         };
     editor.onDidContentSizeChange(updateHeight);
     updateHeight();
+
+    const fsBtn = document.createElement('button')
+    fsBtn.setAttribute('type','button')
+    fsBtn.title = 'Expand'
+    fsBtn.textContent = '⤢'
+    fsBtn.style.position = 'absolute'
+    fsBtn.style.top = '6px'
+    fsBtn.style.right = '6px'
+    fsBtn.style.zIndex = '10'
+    fsBtn.style.background = 'rgba(255,255,255,0.9)'
+    fsBtn.style.border = '1px solid rgba(0,0,0,0.1)'
+    fsBtn.style.borderRadius = '6px'
+    fsBtn.style.padding = '2px 6px'
+    fsBtn.style.cursor = 'pointer'
+    fsBtn.addEventListener('click', () => openCodeOverlay(language, value))
+    mount.appendChild(fsBtn)
   });
 
   // 为标准 ```lang 代码块添加 Monaco 高亮（排除 mermaid 与显式 monaco）
@@ -186,7 +276,25 @@ async function enhance() {
     const value = code.textContent || ''
     try {
       const html = await codeToHtml(value, { lang: language, theme: 'github-light' })
-      pre.outerHTML = html
+      const wrapper = document.createElement('div')
+      wrapper.style.position = 'relative'
+      wrapper.innerHTML = html
+      const fsBtn = document.createElement('button')
+      fsBtn.setAttribute('type','button')
+      fsBtn.title = 'Expand'
+      fsBtn.textContent = '⤢'
+      fsBtn.style.position = 'absolute'
+      fsBtn.style.top = '6px'
+      fsBtn.style.right = '6px'
+      fsBtn.style.zIndex = '10'
+      fsBtn.style.background = 'rgba(255,255,255,0.9)'
+      fsBtn.style.border = '1px solid rgba(0,0,0,0.1)'
+      fsBtn.style.borderRadius = '6px'
+      fsBtn.style.padding = '2px 6px'
+      fsBtn.style.cursor = 'pointer'
+      fsBtn.addEventListener('click', () => openCodeOverlay(language, value))
+      wrapper.appendChild(fsBtn)
+      pre.replaceWith(wrapper)
     } catch {
       const mount = document.createElement('div')
       mount.style.height = '100%'
