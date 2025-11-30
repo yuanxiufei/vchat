@@ -62,4 +62,10 @@
   "rename": "Rename",
   "unpin": "Unpin",
   "pinned": "Pinned"
+  ,"data_manage":"Data Management"
+  ,"data_manage_desc":"Clear local conversations/messages (configuration preserved)"
+  ,"clear_conversations":"Clear Conversations"
+  ,"clear_done":"Conversations and messages cleared"
+  ,"save_done":"Settings saved"
+  ,"reset_done":"Settings reset"
 }

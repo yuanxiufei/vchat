@@ -71,6 +71,14 @@
           </ul>
         </details>
 
+        <details v-if="activeTab==='general'" class="glass p-4 rounded-xl shadow-sm self-start" open>
+          <summary class="cursor-pointer text-base font-medium text-gray-700">{{ t('data_manage') }}</summary>
+          <p class="text-sm text-gray-600 mt-3">{{ t('data_manage_desc') }}</p>
+          <div class="mt-3">
+            <button type="button" class="px-3 py-2 bg-white border border-red-300 text-red-700 rounded-lg shadow-sm hover:border-red-400" @click="clearAllData">{{ t('clear_conversations') }}</button>
+          </div>
+        </details>
+
         <div v-if="activeTab==='models'" class="space-y-6">
           <div class="flex items-center justify-end mb-3">
             <DialogRoot v-model:open="showAdd">
@@ -810,6 +818,9 @@
         </div>
       </aside>
     </div>
+    <div v-if="toastMsg" class="fixed top-6 left-1/2 -translate-x-1/2 bg-green-600 text-white rounded-xl shadow-lg px-4 py-2 z-[2000]">
+      {{ toastMsg }}
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -836,6 +847,9 @@ import {
   SelectItemText,
 } from "radix-vue";
 import { t, setLang } from "@/locales";
+import { db } from "@/data/db";
+const toastMsg = ref("")
+function showToast(key:string){ toastMsg.value = t(key); setTimeout(()=>{ toastMsg.value = "" }, 2000) }
 // 当前 UI 语言（影响文案与方向）：来自配置并可保存
 const language = ref("zh-CN");
 // 全局字号：通过 applyFont 应用到根元素，影响整体缩放
@@ -895,6 +909,7 @@ async function saveGeneral() {
   fontSize.value = next.fontSize;
   applyFont();
   setLang(next.language);
+  showToast('save_done')
 }
 // 重置通用设置为默认并保存
 async function resetGeneral() {
@@ -902,17 +917,26 @@ async function resetGeneral() {
   fontSize.value = 14;
   applyFont();
   await saveGeneral();
+  showToast('reset_done')
 }
 // 保存模型设置（providers）
 async function saveModels() {
   const safeProviders = JSON.parse(JSON.stringify(providers.value));
   await (window as any).electronAPI.setConfig({ providers: safeProviders });
   providers.value = normalizeProviders(safeProviders);
+  showToast('save_done')
 }
 // 重置模型设置并保存
 async function resetModels() {
   providers.value = {}
   await saveModels()
+  showToast('reset_done')
+}
+async function clearAllData(){
+  await db.messages.clear()
+  await db.conversations.clear()
+  toastMsg.value = t('clear_done')
+  setTimeout(()=>{ toastMsg.value = "" }, 2000)
 }
 function openDoc(type: string) {
   // 文档链接映射：统一在系统浏览器中打开，避免应用内导航
@@ -1148,3 +1172,4 @@ onMounted(async () => {
   watch(fontSize, () => applyFont());
 });
 </script>
+<!-- toast -->
