@@ -9,12 +9,19 @@ import { CreateChatProps, updatedStreamData } from '../types/appType'
 import { isModelSupported, pickFallbackModel, hasImage, supportsImage } from './support'
 
 export const createWindow = async () => {
+  const isWin = process.platform === 'win32'
+  const isMac = process.platform === 'darwin'
+  const iconName = isWin ? 'logo.ico' : (isMac ? 'logo.icns' : 'logo.png')
+  const iconBase = app.isPackaged ? process.resourcesPath : path.resolve(__dirname, '../../src/styles/logo')
+  const iconPath = path.join(iconBase, iconName)
+
   const mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     minWidth: 1024,
     minHeight: 700,
     useContentSize: true,
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },

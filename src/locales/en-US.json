@@ -85,7 +85,7 @@
   "docs_openai_compat": "OpenAI Compatibility Mode",
   "empty_models_title": "No models configured",
   "empty_models_desc": "Click Add in the top-right, then fill API Key, BaseUrl and models.",
-  "app_title": "Smart Chat",
+  "app_title": "SmartChat",
   "delete": "Delete",
   "confirm_delete": "Delete this conversation? This cannot be undone",
   "pin": "Pin",

@@ -1,5 +1,6 @@
 // Electron Forge 主配置：描述打包、发布与编译流程
 import type { ForgeConfig } from "@electron-forge/shared-types";
+import path from 'node:path'
 // 不同平台安装包生成器
 import { MakerSquirrel } from "@electron-forge/maker-squirrel"; // Windows 安装器（.exe）
 import { MakerZIP } from "@electron-forge/maker-zip"; // macOS ZIP 包
@@ -16,13 +17,15 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 // Forge 配置主体
 const config: ForgeConfig = {
   packagerConfig: {
-    name: "vchat", // 应用名称（打包产物显示的 App 名）
-    asar: true, // 开启 asar 打包，源码压缩到 asar，减少文件数量并提升加载速度
+    name: "SmartChat",
+    executableName: "SmartChat",
+    icon: path.resolve(__dirname, 'src', 'styles', 'logo', process.platform === 'darwin' ? 'logo.icns' : process.platform === 'win32' ? 'logo.ico' : 'logo.png'),
+    asar: true,
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}), // Windows 安装器（x64）
-    new MakerDMG({}), // macOS DMG 安装包（x64/arm64）
+    new MakerSquirrel({ setupIcon: path.resolve(__dirname, 'src', 'styles', 'logo', 'logo.ico') }),
+    new MakerDMG({ icon: path.resolve(__dirname, 'src', 'styles', 'logo', 'logo.icns') }),
     new MakerZIP({}, ["darwin"]), // macOS ZIP 分发包（x64/arm64）
     new MakerRpm({}), // RPM 包（RedHat/Fedora 等）
     new MakerDeb({}), // DEB 包（Debian/Ubuntu 等）
