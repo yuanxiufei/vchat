@@ -29,6 +29,15 @@ export const createWindow = async () => {
     },
   })
 
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+  mainWindow.webContents.on('will-navigate', (e, targetUrl) => {
+    const isDev = !!MAIN_WINDOW_VITE_DEV_SERVER_URL
+    const appUrl = isDev ? MAIN_WINDOW_VITE_DEV_SERVER_URL : 'file://'
+    if (!targetUrl.startsWith(appUrl)) {
+      e.preventDefault()
+    }
+  })
+
   const trayIconName = isWin ? 'logo.ico' : 'logo.png'
   const trayIconBase = app.isPackaged ? process.resourcesPath : path.resolve(__dirname, '../../src/styles/logo')
   const trayIconPath = path.join(trayIconBase, trayIconName)
