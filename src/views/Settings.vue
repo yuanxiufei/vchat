@@ -848,6 +848,7 @@ import {
 } from "radix-vue";
 import { t, setLang } from "@/locales";
 import { db } from "@/data/db";
+import { useConversationStore } from "@/stores/conversation";
 const toastMsg = ref("")
 function showToast(key:string){ toastMsg.value = t(key); setTimeout(()=>{ toastMsg.value = "" }, 2000) }
 // 当前 UI 语言（影响文案与方向）：来自配置并可保存
@@ -933,9 +934,17 @@ async function resetModels() {
   showToast('reset_done')
 }
 async function clearAllData(){
-  await db.messages.clear()
-  await db.conversations.clear()
+  try{
+    await db.messages.clear()
+    await db.conversations.clear()
+    await db.delete()
+    await db.open()
+  }catch{}
   toastMsg.value = t('clear_done')
+  const conv = useConversationStore()
+  await conv.fetchConversations()
+  conv.items = []
+  conv.selectedId = -1
   setTimeout(()=>{ toastMsg.value = "" }, 2000)
 }
 function openDoc(type: string) {
