@@ -92,6 +92,7 @@
   "rename": "重命名",
   "unpin": "取消置顶",
   "pinned": "置顶"
+  ,"quit_app":"退出应用"
   ,"data_manage":"数据管理"
   ,"data_manage_desc":"清除本地会话与消息数据（不影响模型配置）"
   ,"clear_conversations":"清空会话数据"

@@ -92,6 +92,7 @@
   "rename": "Rename",
   "unpin": "Unpin",
   "pinned": "Pinned"
+  ,"quit_app":"Quit"
   ,"data_manage":"Data Management"
   ,"data_manage_desc":"Clear local conversations/messages (configuration preserved)"
   ,"clear_conversations":"Clear Conversations"

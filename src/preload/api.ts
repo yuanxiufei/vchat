@@ -20,4 +20,5 @@ export const electronAPI = {
   openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   onMenuNewConversation: (cb: () => void) => ipcRenderer.on('menu:new-conversation', () => cb()),
   onMenuOpenSettings: (cb: () => void) => ipcRenderer.on('menu:open-settings', () => cb()),
+  quitApp: () => ipcRenderer.invoke('app:quit'),
 }

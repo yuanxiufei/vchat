@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, protocol, shell, net } from 'electron'
+import { app, BrowserWindow, ipcMain, protocol, shell, net, Tray, Menu, nativeImage } from 'electron'
 import path from 'node:path'
 import url from 'url'
 import { buildAppMenu } from '../menu/appMenu'
@@ -7,6 +7,8 @@ import { CreateProvider } from '../providers/CreateProvider'
 import { readCfg, writeCfg, AppCfg } from './config'
 import { CreateChatProps, updatedStreamData } from '../types/appType'
 import { isModelSupported, pickFallbackModel, hasImage, supportsImage } from './support'
+
+let isQuitting = false
 
 export const createWindow = async () => {
   const isWin = process.platform === 'win32'
@@ -27,8 +29,37 @@ export const createWindow = async () => {
     },
   })
 
+  const trayIconName = isWin ? 'logo.ico' : 'logo.png'
+  const trayIconBase = app.isPackaged ? process.resourcesPath : path.resolve(__dirname, '../../src/styles/logo')
+  const trayIconPath = path.join(trayIconBase, trayIconName)
+  const trayImage = nativeImage.createFromPath(trayIconPath)
+  ;(global as any).__appTray__ = (global as any).__appTray__ || null
+  const appTray: Tray = (global as any).__appTray__ || new Tray(trayImage)
+  ;(global as any).__appTray__ = appTray
   const initialCfg = await readCfg()
-  buildAppMenu(mainWindow, initialCfg.language as any)
+  const L = initialCfg.language === 'zh-CN'
+    ? { open: '打开窗口', newConv: '新建对话', settings: '设置', quit: '退出' }
+    : { open: 'Open Window', newConv: 'New Conversation', settings: 'Settings', quit: 'Quit' }
+  appTray.setToolTip(initialCfg.language === 'zh-CN' ? '智聊' : 'Smart Chat')
+  appTray.setContextMenu(Menu.buildFromTemplate([
+    { label: L.open, click: () => { if (!mainWindow.isDestroyed()) { mainWindow.show(); mainWindow.focus() } } },
+    { type: 'separator' },
+    { label: L.newConv, click: () => mainWindow.webContents.send('menu:new-conversation') },
+    { label: L.settings, click: () => mainWindow.webContents.send('menu:open-settings') },
+    { type: 'separator' },
+    { label: L.quit, click: () => { isQuitting = true; app.quit() } },
+  ]))
+  appTray.on('click', () => { if (!mainWindow.isDestroyed()) { mainWindow.show(); mainWindow.focus() } })
+
+  
+  
+  
+  
+  
+  
+  
+  const initialCfg2 = await readCfg()
+  buildAppMenu(mainWindow, initialCfg2.language as any)
   registerGlobalShortcuts(() => (mainWindow?.isDestroyed() ? null : mainWindow))
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -40,6 +71,14 @@ export const createWindow = async () => {
     if (isCmdCtrl && (input.key === ',' || input.code === 'Comma')) {
       mainWindow.webContents.send('menu:open-settings')
       event.preventDefault()
+    }
+  })
+
+  app.on('before-quit', () => { isQuitting = true })
+  mainWindow.on('close', (e) => {
+    if (!isQuitting) {
+      e.preventDefault()
+      mainWindow.hide()
     }
   })
 
@@ -98,6 +137,12 @@ export const createWindow = async () => {
 
   ipcMain.handle('open-external', async (_e, urlStr: string) => {
     await shell.openExternal(urlStr)
+    return true
+  })
+
+  ipcMain.handle('app:quit', async () => {
+    isQuitting = true
+    app.quit()
     return true
   })
 
