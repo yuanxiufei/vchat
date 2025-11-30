@@ -42,6 +42,18 @@
           >
             {{ t("config_docs") }}
           </button>
+          <button
+            class="pb-4 -mb-px text-lg font-semibold"
+            :class="
+              activeTab === 'disclaimer'
+                ? 'text-gray-900 border-b-2 border-green-600'
+                : 'text-gray-500 hover:text-gray-900'
+            "
+            type="button"
+            @click="activeTab = 'disclaimer'"
+          >
+            {{ t("disclaimer_tab") }}
+          </button>
         </div>
         <div
           v-if="activeTab === 'general'"
@@ -118,82 +130,173 @@
           class="glass rounded-2xl p-6 shadow-sm"
         >
           <details class="p-4" open>
-            <summary class="cursor-pointer text-base font-medium text-gray-700">{{ t('config_docs') }}</summary>
+            <summary class="cursor-pointer text-base font-medium text-gray-700">
+              {{ t("config_docs") }}
+            </summary>
             <div class="text-sm text-gray-600 space-y-3 mt-3">
               <div>
-                <div class="font-medium text-gray-700">{{ t('guide_alias_title') }}</div>
+                <div class="font-medium text-gray-700">
+                  {{ t("guide_alias_title") }}
+                </div>
                 <ul class="list-disc pl-5 space-y-1">
                   <li v-html="t('guide_alias_bullet_1')"></li>
                   <li v-html="t('guide_alias_bullet_2')"></li>
-                  <li>{{ t('guide_alias_bullet_3') }}</li>
-                  <li>{{ t('guide_alias_bullet_4') }}</li>
+                  <li>{{ t("guide_alias_bullet_3") }}</li>
+                  <li>{{ t("guide_alias_bullet_4") }}</li>
                 </ul>
               </div>
               <div>
-                <div class="font-medium text-gray-700">{{ t('openai_title') }}</div>
-                <button type="button" @click="viewImage(imgOpenaiSrc)" class="block">
-                  <img :src="imgOpenaiSrc" :alt="t('openai_title')" class="w-full max-w-[920px] h-auto rounded border bg-white my-3" />
+                <div class="font-medium text-gray-700">
+                  {{ t("openai_title") }}
+                </div>
+                <button
+                  type="button"
+                  @click="viewImage(imgOpenaiSrc)"
+                  class="block"
+                >
+                  <img
+                    :src="imgOpenaiSrc"
+                    :alt="t('openai_title')"
+                    class="w-full max-w-[400px] h-auto rounded border bg-white my-3"
+                  />
                 </button>
                 <ul class="list-disc pl-5 space-y-1">
                   <li v-html="t('guide_openai_key')"></li>
                   <li v-html="t('guide_openai_base')"></li>
                   <li v-html="t('guide_openai_models')"></li>
-                  <li><a class="hover:text-black underline" href="#" @click.prevent="openKey('openai')">{{ t('guide_openai_link') }}</a></li>
+                  <li>
+                    <a
+                      class="hover:text-black underline"
+                      href="#"
+                      @click.prevent="openKey('openai')"
+                      >{{ t("guide_openai_link") }}</a
+                    >
+                  </li>
                 </ul>
               </div>
               <div>
-                <div class="font-medium text-gray-700">{{ t('deepseek_title') }}</div>
-                <button type="button" @click="viewImage(imgDeepseekSrc)" class="block">
-                  <img :src="imgDeepseekSrc" :alt="t('deepseek_title')" class="w-full max-w-[920px] h-auto rounded border bg-white my-3" />
+                <div class="font-medium text-gray-700">
+                  {{ t("deepseek_title") }}
+                </div>
+                <button
+                  type="button"
+                  @click="viewImage(imgDeepseekSrc)"
+                  class="block"
+                >
+                  <img
+                    :src="imgDeepseekSrc"
+                    :alt="t('deepseek_title')"
+                    class="w-full max-w-[400px] h-auto rounded border bg-white my-3"
+                  />
                 </button>
                 <ul class="list-disc pl-5 space-y-1">
-                  <li>{{ t('guide_deepseek_key') }}</li>
+                  <li>{{ t("guide_deepseek_key") }}</li>
                   <li v-html="t('guide_deepseek_base')"></li>
                   <li v-html="t('guide_deepseek_models')"></li>
-                  <li><a class="hover:text-black underline" href="#" @click.prevent="openKey('deepseek')">{{ t('guide_deepseek_link') }}</a></li>
+                  <li>
+                    <a
+                      class="hover:text-black underline"
+                      href="#"
+                      @click.prevent="openKey('deepseek')"
+                      >{{ t("guide_deepseek_link") }}</a
+                    >
+                  </li>
                 </ul>
               </div>
               <div>
-                <div class="font-medium text-gray-700">{{ t('claude_title') }}</div>
-                <button type="button" @click="viewImage(imgClaudeSrc)" class="block">
-                  <img :src="imgClaudeSrc" :alt="t('claude_title')" class="w-full max-w-[920px] h-auto rounded border bg-white my-3" />
+                <div class="font-medium text-gray-700">
+                  {{ t("claude_title") }}
+                </div>
+                <button
+                  type="button"
+                  @click="viewImage(imgClaudeSrc)"
+                  class="block"
+                >
+                  <img
+                    :src="imgClaudeSrc"
+                    :alt="t('claude_title')"
+                    class="w-full max-w-[400px] h-auto rounded border bg-white my-3"
+                  />
                 </button>
                 <ul class="list-disc pl-5 space-y-1">
-                  <li>{{ t('guide_claude_key') }}</li>
+                  <li>{{ t("guide_claude_key") }}</li>
                   <li v-html="t('guide_claude_base')"></li>
                   <li v-html="t('guide_claude_models')"></li>
-                  <li><a class="hover:text-black underline" href="#" @click.prevent="openKey('claude')">{{ t('guide_claude_link') }}</a></li>
+                  <li>
+                    <a
+                      class="hover:text-black underline"
+                      href="#"
+                      @click.prevent="openKey('claude')"
+                      >{{ t("guide_claude_link") }}</a
+                    >
+                  </li>
                 </ul>
               </div>
               <div>
-                <div class="font-medium text-gray-700">{{ t('qianfan_title') }}</div>
-                <button type="button" @click="viewImage(imgQianfanSrc)" class="block">
-                  <img :src="imgQianfanSrc" :alt="t('qianfan_title')" class="w-full max-w-[920px] h-auto rounded border bg-white my-3" />
+                <div class="font-medium text-gray-700">
+                  {{ t("qianfan_title") }}
+                </div>
+                <button
+                  type="button"
+                  @click="viewImage(imgQianfanSrc)"
+                  class="block"
+                >
+                  <img
+                    :src="imgQianfanSrc"
+                    :alt="t('qianfan_title')"
+                    class="w-full max-w-[400px] h-auto rounded border bg-white my-3"
+                  />
                 </button>
                 <ul class="list-disc pl-5 space-y-1">
-                  <li>{{ t('guide_qianfan_key') }}</li>
-                  <li>{{ t('guide_qianfan_models') }}</li>
-                  <li><a class="hover:text-black underline" href="#" @click.prevent="openKey('qianfan')">{{ t('guide_qianfan_link') }}</a></li>
+                  <li>{{ t("guide_qianfan_key") }}</li>
+                  <li>{{ t("guide_qianfan_models") }}</li>
+                  <li>
+                    <a
+                      class="hover:text-black underline"
+                      href="#"
+                      @click.prevent="openKey('qianfan')"
+                      >{{ t("guide_qianfan_link") }}</a
+                    >
+                  </li>
                 </ul>
               </div>
               <div>
-                <div class="font-medium text-gray-700">{{ t('dashscope_title') }}</div>
-                <button type="button" @click="viewImage(imgDashscopeSrc)" class="block">
-                  <img :src="imgDashscopeSrc" :alt="t('dashscope_title')" class="w-full max-w-[920px] h-auto rounded border bg-white my-3" />
+                <div class="font-medium text-gray-700">
+                  {{ t("dashscope_title") }}
+                </div>
+                <button
+                  type="button"
+                  @click="viewImage(imgDashscopeSrc)"
+                  class="block"
+                >
+                  <img
+                    :src="imgDashscopeSrc"
+                    :alt="t('dashscope_title')"
+                    class="w-full max-w-[400px] h-auto rounded border bg-white my-3"
+                  />
                 </button>
                 <ul class="list-disc pl-5 space-y-1">
-                  <li>{{ t('guide_dashscope_key') }}</li>
+                  <li>{{ t("guide_dashscope_key") }}</li>
                   <li v-html="t('guide_dashscope_base')"></li>
                   <li v-html="t('guide_dashscope_models')"></li>
-                  <li><a class="hover:text-black underline" href="#" @click.prevent="openKey('dashscope')">{{ t('guide_dashscope_link') }}</a></li>
+                  <li>
+                    <a
+                      class="hover:text-black underline"
+                      href="#"
+                      @click.prevent="openKey('dashscope')"
+                      >{{ t("guide_dashscope_link") }}</a
+                    >
+                  </li>
                 </ul>
               </div>
               <div>
-                <div class="font-medium text-gray-700">{{ t('guide_compat_title') }}</div>
+                <div class="font-medium text-gray-700">
+                  {{ t("guide_compat_title") }}
+                </div>
                 <ul class="list-disc pl-5 space-y-1">
-                  <li>{{ t('guide_compat_bullet_1') }}</li>
-                  <li>{{ t('guide_compat_bullet_2') }}</li>
-                  <li>{{ t('guide_compat_bullet_3') }}</li>
+                  <li>{{ t("guide_compat_bullet_1") }}</li>
+                  <li>{{ t("guide_compat_bullet_2") }}</li>
+                  <li>{{ t("guide_compat_bullet_3") }}</li>
                 </ul>
               </div>
             </div>
@@ -212,6 +315,31 @@
               </DialogContent>
             </DialogPortal>
           </DialogRoot>
+        </div>
+        <div v-if="activeTab === 'disclaimer'" class="glass rounded-2xl p-6 shadow-sm">
+          <h2 class="sr-only">{{ t('disclaimer_title') }}</h2>
+          <details class="p-4" open>
+            <summary class="cursor-pointer text-base font-medium text-gray-700">{{ t('disclaimer_title') }}</summary>
+            <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600 mt-3">
+              <li>{{ t('disclaimer_bullet_1') }}</li>
+              <li>{{ t('disclaimer_bullet_2') }}</li>
+              <li>{{ t('disclaimer_bullet_3') }}</li>
+              <li>{{ t('disclaimer_bullet_4') }}</li>
+              <li>{{ t('disclaimer_bullet_5') }}</li>
+              <li>{{ t('disclaimer_bullet_6') }}</li>
+              <li>{{ t('disclaimer_bullet_7') }}</li>
+              <li>{{ t('disclaimer_bullet_8') }}</li>
+              <li>{{ t('disclaimer_bullet_9') }}</li>
+              <li>{{ t('disclaimer_bullet_10') }}</li>
+              <li>{{ t('disclaimer_bullet_11') }}</li>
+              <li>{{ t('disclaimer_bullet_12') }}</li>
+              <li>{{ t('disclaimer_bullet_13') }}</li>
+              <li>{{ t('disclaimer_bullet_14') }}</li>
+              <li>{{ t('disclaimer_bullet_15') }}</li>
+              <li>{{ t('disclaimer_bullet_16') }}</li>
+              <li>{{ t('disclaimer_bullet_17') }}</li>
+            </ul>
+          </details>
         </div>
         <div v-if="activeTab === 'models'" class="space-y-6">
           <div class="flex items-center justify-end mb-3">
@@ -421,10 +549,15 @@
               </DialogPortal>
             </DialogRoot>
           </div>
-          <div v-if="!hasModels" class="glass rounded-xl p-6 text-sm text-gray-600 flex items-center justify-between">
+          <div
+            v-if="!hasModels"
+            class="glass rounded-xl p-6 text-sm text-gray-600 flex items-center justify-between"
+          >
             <div>
-              <div class="text-base font-medium text-gray-700 mb-1">{{ t('empty_models_title') }}</div>
-              <div class="text-gray-600">{{ t('empty_models_desc') }}</div>
+              <div class="text-base font-medium text-gray-700 mb-1">
+                {{ t("empty_models_title") }}
+              </div>
+              <div class="text-gray-600">{{ t("empty_models_desc") }}</div>
             </div>
           </div>
           <div
@@ -1125,7 +1258,7 @@
                   class="hover:text-black"
                   href="#"
                   @click.prevent="goSection('dashscope')"
-                  >{{ t('dashscope_title') }}</a
+                  >{{ t("dashscope_title") }}</a
                 >
               </li>
               <li>
@@ -1133,7 +1266,7 @@
                   class="hover:text-black"
                   href="#"
                   @click.prevent="goSection('qianfan')"
-                  >{{ t('qianfan_title') }}</a
+                  >{{ t("qianfan_title") }}</a
                 >
               </li>
               <li>
@@ -1141,7 +1274,7 @@
                   class="hover:text-black"
                   href="#"
                   @click.prevent="goSection('openai')"
-                  >{{ t('openai_title') }}</a
+                  >{{ t("openai_title") }}</a
                 >
               </li>
               <li>
@@ -1149,7 +1282,7 @@
                   class="hover:text-black"
                   href="#"
                   @click.prevent="goSection('deepseek')"
-                  >{{ t('deepseek_title') }}</a
+                  >{{ t("deepseek_title") }}</a
                 >
               </li>
               <li>
@@ -1157,7 +1290,7 @@
                   class="hover:text-black"
                   href="#"
                   @click.prevent="goSection('claude')"
-                  >{{ t('claude_title') }}</a
+                  >{{ t("claude_title") }}</a
                 >
               </li>
             </ul>
@@ -1236,13 +1369,17 @@ function viewImage(url: string) {
 const language = ref("zh-CN");
 // 全局字号：通过 applyFont 应用到根元素，影响整体缩放
 const fontSize = ref(14);
-const activeTab = ref<"general" | "models" | "guide">("general");
+const activeTab = ref<"general" | "models" | "guide" | "disclaimer">("general");
 const isEN = computed(() => language.value === "en-US");
 const imgOpenaiSrc = computed(() => (isEN.value ? imgOpenaiEn : imgOpenai));
-const imgDeepseekSrc = computed(() => (isEN.value ? imgDeepseekEn : imgDeepseek));
+const imgDeepseekSrc = computed(() =>
+  isEN.value ? imgDeepseekEn : imgDeepseek
+);
 const imgClaudeSrc = computed(() => (isEN.value ? imgClaudeEn : imgClaude));
 const imgQianfanSrc = computed(() => (isEN.value ? imgQianfanEn : imgQianfan));
-const imgDashscopeSrc = computed(() => (isEN.value ? imgDashscopeEn : imgDashscope));
+const imgDashscopeSrc = computed(() =>
+  isEN.value ? imgDashscopeEn : imgDashscope
+);
 // 图片国际化：根据语言切换中/英文图片资源
 // Provider 配置聚合：标准键 + 自定义别名键（如 openai_lab）
 // 保存时写入用户目录；模板文件始终脱敏
@@ -1578,7 +1715,7 @@ const providersCount = computed(() => {
 onMounted(async () => {
   await load();
   const tab = localStorage.getItem("settingsTab");
-  if (tab === "general" || tab === "models" || tab === "guide") {
+  if (tab === "general" || tab === "models" || tab === "guide" || tab === "disclaimer") {
     activeTab.value = tab as any;
   } else {
     activeTab.value = providersCount.value > 0 ? "models" : "general";
