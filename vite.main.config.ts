@@ -26,11 +26,11 @@ export default defineConfig((env) => {
         plugins: [
           ({
             name: 'replace-dotenv-require',
-            transform(code) {
+            transform(code: string) {
               const c = code
                 .replace(/require\(["']dotenv["']\)\.config\(\)/g, '')
                 .replace(/require\(["']dotenv["']\)/g, '({config(){}})')
-              return { code: c, map: null }
+              return { code: c, map: null as any }
             }
           } as any)
         ]
