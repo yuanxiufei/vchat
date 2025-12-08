@@ -1,5 +1,7 @@
 import { app, BrowserWindow, ipcMain, protocol, shell, net, Tray, Menu, nativeImage } from 'electron'
 import path from 'node:path'
+import fs from 'fs/promises'
+import fss from 'node:fs'
 import url from 'url'
 import { buildAppMenu } from '../menu/appMenu'
 import { registerGlobalShortcuts } from '../menu/globalShortcuts'
@@ -14,8 +16,21 @@ export const createWindow = async () => {
   const isWin = process.platform === 'win32'
   const isMac = process.platform === 'darwin'
   const iconName = isWin ? 'logo.ico' : (isMac ? 'logo.icns' : 'logo.png')
-  const iconBase = app.isPackaged ? process.resourcesPath : path.resolve(__dirname, '../../src/styles/logo')
-  const iconPath = path.join(iconBase, iconName)
+  const bases = [
+    path.join(process.resourcesPath, 'logo'),
+    path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'styles', 'logo'),
+    path.join(process.resourcesPath, 'src', 'styles', 'logo'),
+    path.join(app.getAppPath(), 'src', 'styles', 'logo'),
+    path.resolve(__dirname, '../../src/styles/logo')
+  ]
+  const pickPath = (name: string) => {
+    for (const base of bases) {
+      const p = path.join(base, name)
+      if (fss.existsSync(p)) return p
+    }
+    return path.join(bases[bases.length - 1], name)
+  }
+  const iconPath = pickPath(iconName)
 
   const mainWindow = new BrowserWindow({
     width: 1024,
@@ -39,9 +54,15 @@ export const createWindow = async () => {
   })
 
   const trayIconName = isWin ? 'logo.ico' : 'logo.png'
-  const trayIconBase = app.isPackaged ? process.resourcesPath : path.resolve(__dirname, '../../src/styles/logo')
-  const trayIconPath = path.join(trayIconBase, trayIconName)
-  const trayImage = nativeImage.createFromPath(trayIconPath)
+  const trayIconPath = pickPath(isWin ? 'logo.png' : trayIconName)
+  let trayImage = nativeImage.createFromPath(trayIconPath)
+  if (!trayImage || trayImage.isEmpty()) {
+    const altPng = pickPath('logo.png')
+    trayImage = nativeImage.createFromPath(altPng)
+  }
+  if (isWin && trayImage && !trayImage.isEmpty()) {
+    trayImage = trayImage.resize({ width: 16, height: 16 })
+  }
   ;(global as any).__appTray__ = (global as any).__appTray__ || null
   const appTray: Tray = (global as any).__appTray__ || new Tray(trayImage)
   ;(global as any).__appTray__ = appTray
@@ -274,4 +295,4 @@ export const createWindow = async () => {
   }
 }
 
-import fs from 'fs/promises'
+

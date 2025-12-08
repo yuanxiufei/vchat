@@ -21,6 +21,9 @@ const config: ForgeConfig = {
     executableName: "SmartChat",
     icon: path.resolve(__dirname, 'src', 'styles', 'logo', process.platform === 'darwin' ? 'logo.icns' : process.platform === 'win32' ? 'logo.ico' : 'logo.png'),
     asar: true,
+    extraResource: [
+      path.resolve(__dirname, 'src', 'styles', 'logo')
+    ],
   },
   rebuildConfig: {},
   makers: [
