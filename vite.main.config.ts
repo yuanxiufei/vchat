@@ -21,7 +21,7 @@ export default defineConfig((env) => {
         formats: ["cjs"],
       },
       rollupOptions: {
-        external: [...builtins, 'dotenv', 'dotenv/config']
+        external: builtins
       },
     },
     plugins: [pluginHotRestart("restart")],

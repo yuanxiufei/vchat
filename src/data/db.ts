@@ -2,7 +2,7 @@
 import { default as Dexie, type EntityTable } from 'dexie'
 import { ProviderProps, ConversationProps, MessageProps } from '../types/appType'
 // 定义数据库
-export const db = new Dexie('vChatDatabse') as Dexie & {
+export const db = new Dexie('SmartChatDatabse') as Dexie & {
   providers: EntityTable<ProviderProps, 'id'>;
   conversations: EntityTable<ConversationProps, 'id'>;
   messages: EntityTable<MessageProps, 'id'>;

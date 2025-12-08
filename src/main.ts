@@ -1,5 +1,5 @@
-import 'dotenv/config'
 import { app, BrowserWindow } from "electron";
+import { updateElectronApp } from 'update-electron-app'
 import { unregisterGlobalShortcuts } from './menu/globalShortcuts'
 import { createWindow } from './ipc/window'
 import started from "electron-squirrel-startup";
@@ -11,6 +11,16 @@ if (started) {
 // Dev-only: suppress Electron security warnings about CSP during development
 if (!app.isPackaged) {
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
+}
+
+if (app.isPackaged) {
+  try {
+    updateElectronApp({
+      repo: 'yuanxiufei/SmartChat',
+      updateInterval: '1 hour',
+      notifyUser: true,
+    })
+  } catch {}
 }
 
 const gotTheLock = app.requestSingleInstanceLock()

@@ -48,7 +48,7 @@ const config: ForgeConfig = {
       config: {
         repository: {
           owner: "yuanxiufei",
-          name: "vchat",
+          name: "SmartChat",
         },
         prerelease: false,
         draft: false,

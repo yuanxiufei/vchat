@@ -1,9 +1,13 @@
 {
-  "name": "vchat",
+  "name": "SmartChat",
   "productName": "SmartChat",
   "private": true,
   "version": "1.0.4",
   "description": "My Electron application description",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yuanxiufei/SmartChat.git"
+  },
   "main": ".vite/build/main.js",
   "engines": {
     "node": ">=20 <23",
@@ -86,6 +90,7 @@
     "radix-vue": "^1.9.17",
     "shiki": "^3.15.0",
     "stream-monaco": "^0.0.6",
+    "update-electron-app": "^3.1.2",
     "vue": "^3.5.13",
     "vue-i18n": "^11.2.2",
     "vue-renderer-markdown": "0.0.63-beta.0",
