@@ -21,4 +21,10 @@ export const electronAPI = {
   onMenuNewConversation: (cb: () => void) => ipcRenderer.on('menu:new-conversation', () => cb()),
   onMenuOpenSettings: (cb: () => void) => ipcRenderer.on('menu:open-settings', () => cb()),
   quitApp: () => ipcRenderer.invoke('app:quit'),
+  checkForUpdates: () => ipcRenderer.invoke('app:check-update'),
+  onUpdateStatus: (cb: (payload: any) => void) => {
+    const handler = (_e: any, payload: any) => cb(payload)
+    ipcRenderer.on('update:status', handler)
+    return () => ipcRenderer.off('update:status', handler)
+  },
 }

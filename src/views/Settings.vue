@@ -125,6 +125,21 @@
           </div>
         </details>
 
+        <details v-if="activeTab === 'general'" class="glass p-4 rounded-xl shadow-sm self-start" open>
+          <summary class="cursor-pointer text-base font-medium text-gray-700">
+            {{ t("app_update") }}
+          </summary>
+          <div class="mt-3">
+            <button
+              type="button"
+              class="px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+              @click="checkUpdate"
+            >
+              {{ t("check_update") }}
+            </button>
+          </div>
+        </details>
+
         <div
           v-if="activeTab === 'guide'"
           class="glass rounded-2xl p-6 shadow-sm"
@@ -1308,6 +1323,45 @@
         </div>
       </aside>
     </div>
+    <DialogRoot v-model:open="showUpdate">
+      <DialogPortal to="body">
+        <DialogOverlay class="fixed inset-0 bg-black/10 backdrop-blur-sm" />
+        <DialogContent
+          class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] glass w-[420px] max-w-[90vw] rounded-2xl p-6 shadow-sm"
+          aria-describedby="update-desc"
+        >
+          <DialogTitle class="text-base font-semibold mb-3">
+            {{ t("app_update") }}
+          </DialogTitle>
+          <div class="text-sm text-gray-700 mb-2">
+            {{ t("update_progress") }}: {{ Math.round(updatePercent) }}%
+          </div>
+          <div class="w-full h-2 bg-gray-200 rounded">
+            <div
+              class="h-2 bg-green-600 rounded"
+              :style="{ width: `${Math.round(updatePercent)}%` }"
+            />
+          </div>
+          <div
+            id="update-desc"
+            class="text-xs text-gray-500 mt-2"
+          >
+            {{ t("update_install_hint") }}
+          </div>
+          <div class="flex gap-3 justify-end mt-4">
+            <DialogClose as-child>
+              <button
+                class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
+                type="button"
+              >
+                {{ t("cancel") }}
+              </button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </DialogPortal>
+    </DialogRoot>
+
     <div
       v-if="toastMsg"
       class="fixed top-6 left-1/2 -translate-x-1/2 bg-green-600 text-white rounded-xl shadow-lg px-4 py-2 z-[2000]"
@@ -1371,6 +1425,8 @@ const language = ref("zh-CN");
 const fontSize = ref(14);
 const activeTab = ref<"general" | "models" | "guide" | "disclaimer">("general");
 const isEN = computed(() => language.value === "en-US");
+const showUpdate = ref(false)
+const updatePercent = ref(0)
 const imgOpenaiSrc = computed(() => (isEN.value ? imgOpenaiEn : imgOpenai));
 const imgDeepseekSrc = computed(() =>
   isEN.value ? imgDeepseekEn : imgDeepseek
@@ -1445,6 +1501,41 @@ async function resetGeneral() {
   await saveGeneral();
   showToast("reset_done");
 }
+function checkUpdate() {
+  (window as any).electronAPI.checkForUpdates();
+  showToast("update_check_triggered");
+}
+onMounted(() => {
+  try {
+    (window as any).electronAPI.onUpdateStatus((p: any) => {
+      if (!p || !p.type) return
+      if (p.type === 'checking') {
+        showToast('update_checking')
+      } else if (p.type === 'skipped-dev') {
+        showToast('update_dev_skip')
+        showUpdate.value = false
+      } else if (p.type === 'none') {
+        showToast('update_latest')
+        showUpdate.value = false
+      } else if (p.type === 'available') {
+        showToast('update_downloading')
+        showUpdate.value = true
+        updatePercent.value = 0
+      } else if (p.type === 'progress') {
+        showUpdate.value = true
+        updatePercent.value = Math.max(0, Math.min(100, Number(p.percent || 0)))
+      } else if (p.type === 'downloaded') {
+        showToast('update_downloaded')
+        showUpdate.value = false
+      } else if (p.type === 'error') {
+        showToast('update_error')
+        showUpdate.value = false
+      }
+    })
+  } catch {}
+})
+
+// 仅显示百分比，不计算时间或速度
 // 保存模型设置（providers）
 async function saveModels() {
   const safeProviders = JSON.parse(JSON.stringify(providers.value));
@@ -1724,4 +1815,3 @@ onMounted(async () => {
   watch(fontSize, () => applyFont());
 });
 </script>
-<!-- toast -->

@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from "electron";
+import { autoUpdater } from 'electron-updater'
 import { updateElectronApp } from 'update-electron-app'
 import { unregisterGlobalShortcuts } from './menu/globalShortcuts'
 import { createWindow } from './ipc/window'
@@ -11,6 +12,12 @@ if (started) {
 // Dev-only: suppress Electron security warnings about CSP during development
 if (!app.isPackaged) {
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
+}
+if (!app.isPackaged && process.env.FORCE_DEV_UPDATES === 'true') {
+  try {
+    ;(autoUpdater as any).forceDevUpdateConfig = true
+    autoUpdater.allowPrerelease = true
+  } catch {}
 }
 
 if (app.isPackaged) {

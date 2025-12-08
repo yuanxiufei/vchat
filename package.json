@@ -91,6 +91,7 @@
     "shiki": "^3.15.0",
     "stream-monaco": "^0.0.6",
     "update-electron-app": "^3.1.2",
+    "electron-updater": "^6.1.7",
     "vue": "^3.5.13",
     "vue-i18n": "^11.2.2",
     "vue-renderer-markdown": "0.0.63-beta.0",

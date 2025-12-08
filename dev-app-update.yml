@@ -1,0 +1,5 @@
+provider: github
+owner: yuanxiufei
+repo: SmartChat
+private: false
+channel: latest

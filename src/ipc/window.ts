@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, protocol, shell, net, Tray, Menu, nativeImage } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import path from 'node:path'
 import fs from 'fs/promises'
 import fss from 'node:fs'
@@ -83,6 +84,24 @@ export const createWindow = async () => {
 
   buildAppMenu(mainWindow, initialCfg.language as any)
   registerGlobalShortcuts(() => (mainWindow?.isDestroyed() ? null : mainWindow))
+
+  try {
+    autoUpdater.on('error', (e) => {
+      try { mainWindow.webContents.send('update:status', { type: 'error', message: (e as any)?.message || String(e) }) } catch {}
+    })
+    autoUpdater.on('update-available', (info) => {
+      try { mainWindow.webContents.send('update:status', { type: 'available', info }) } catch {}
+    })
+    autoUpdater.on('update-not-available', (info) => {
+      try { mainWindow.webContents.send('update:status', { type: 'none', info }) } catch {}
+    })
+    autoUpdater.on('download-progress', (p) => {
+      try { mainWindow.webContents.send('update:status', { type: 'progress', percent: (p as any)?.percent, bytesPerSecond: (p as any)?.bytesPerSecond }) } catch {}
+    })
+    autoUpdater.on('update-downloaded', (info) => {
+      try { mainWindow.webContents.send('update:status', { type: 'downloaded', info }) } catch {}
+    })
+  } catch {}
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
     const isCmdCtrl = !!input.control || !!input.meta
@@ -183,6 +202,21 @@ export const createWindow = async () => {
     isQuitting = true
     app.quit()
     return true
+  })
+
+  ipcMain.handle('app:check-update', async () => {
+    try {
+      if (!app.isPackaged && !(autoUpdater as any).forceDevUpdateConfig) {
+        try { mainWindow.webContents.send('update:status', { type: 'skipped-dev' }) } catch {}
+        return false
+      }
+      try { mainWindow.webContents.send('update:status', { type: 'checking' }) } catch {}
+      await autoUpdater.checkForUpdatesAndNotify()
+      return true
+    } catch (e) {
+      try { mainWindow.webContents.send('update:status', { type: 'error', message: (e as any)?.message || String(e) }) } catch {}
+      return false
+    }
   })
 
   try {
