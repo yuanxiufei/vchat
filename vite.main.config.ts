@@ -7,7 +7,6 @@ import {
   pluginHotRestart,
 } from "./vite.base.config";
 import path from "node:path";
-// remove external replace plugin; alias handles dotenv resolution
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -22,28 +21,13 @@ export default defineConfig((env) => {
         formats: ["cjs"],
       },
       rollupOptions: {
-        external: builtins,
-        plugins: [
-          ({
-            name: 'replace-dotenv-require',
-            transform(code: string) {
-              const c = code
-                .replace(/require\(["']dotenv["']\)\.config\(\)/g, '')
-                .replace(/require\(["']dotenv["']\)/g, '({config(){}})')
-              return { code: c, map: null as any }
-            }
-          } as any)
-        ]
+        external: [...builtins, 'dotenv', 'dotenv/config']
       },
     },
     plugins: [pluginHotRestart("restart")],
     define,
     resolve: {
-      // Load the Node.js entry.
       mainFields: ["module", "jsnext:main", "jsnext"],
-      alias: {
-        dotenv: path.resolve(__dirname, "src/shims/dotenv.ts"),
-      },
     },
   };
 

@@ -1,8 +1,8 @@
+import 'dotenv/config'
 import { app, BrowserWindow } from "electron";
 import { unregisterGlobalShortcuts } from './menu/globalShortcuts'
 import { createWindow } from './ipc/window'
 import started from "electron-squirrel-startup";
-// 环境变量改由用户设置管理，移除对 dotenv 的运行时依赖
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();

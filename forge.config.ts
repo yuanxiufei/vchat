@@ -13,6 +13,10 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 // 安全与功能开关（Fuses）：在签名之前锁定 Electron 行为
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+// 环境变量配置：从 .env 文件加载敏感配置（如 API 密钥）
+import dotenv from 'dotenv';
+// 加载 .env 文件中的环境变量
+dotenv.config();
 
 // Forge 配置主体
 const config: ForgeConfig = {
@@ -27,24 +31,31 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({ setupIcon: path.resolve(__dirname, 'src', 'styles', 'logo', 'logo.ico') }),
+    new MakerSquirrel({
+      name: 'SmartChat',
+      setupExe: 'SmartChat-Setup.exe',
+      setupIcon: path.resolve(__dirname, 'src', 'styles', 'logo', 'logo.ico')
+    }),
     new MakerDMG({ icon: path.resolve(__dirname, 'src', 'styles', 'logo', 'logo.icns') }),
     new MakerZIP({}, ["darwin"]), // macOS ZIP 分发包（x64/arm64）
     new MakerRpm({}), // RPM 包（RedHat/Fedora 等）
     new MakerDeb({}), // DEB 包（Debian/Ubuntu 等）
-    new MakerSnap({}), // Snap 包（Ubuntu 商店）
+    ...(process.platform === 'linux' && process.env.FORGE_ENABLE_SNAP === 'true' ? [new MakerSnap({})] : []), // Snap 包（Ubuntu 商店，可开关）
   ],
   publishers: [
     {
       name: "@electron-forge/publisher-github", // 发布到 GitHub Releases
       config: {
         repository: {
-          owner: "reginyuan", // 仓库所有者
-          name: "vchat", // 仓库名称
+          owner: "yuanxiufei",
+          name: "vchat",
         },
-        prerelease: false, // 是否标记为预发布版本
-        draft: true, // 以草稿形式创建 Release，便于人工检查后发布
-        authToken: process.env.GITHUB_TOKEN, // 从环境变量读取 GitHub Token（避免硬编码）
+        prerelease: false,
+        draft: false,
+        tag: `v${require('./package.json').version}`,
+        releaseName: `SmartChat v${require('./package.json').version}`,
+        releaseNotes: process.env.RELEASE_NOTES,
+        authToken: process.env.GITHUB_TOKEN,
       },
     },
   ],
