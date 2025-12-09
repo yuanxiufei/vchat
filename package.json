@@ -2,7 +2,7 @@
   "name": "SmartChat",
   "productName": "SmartChat",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "My Electron application description",
   "repository": {
     "type": "git",
