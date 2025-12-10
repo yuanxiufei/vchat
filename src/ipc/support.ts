@@ -20,6 +20,12 @@ export function hasImage(messages: { imagePath?: string }[]): boolean {
   return messages.some(m => !!m.imagePath)
 }
 
+export function lastMessageHasImage(messages: { imagePath?: string }[]): boolean {
+  if (!Array.isArray(messages) || messages.length === 0) return false
+  const last = messages[messages.length - 1]
+  return !!last.imagePath
+}
+
 export function supportsImage(providerName: string, model: string): boolean {
   const base = (providerName || '').split('_')[0]
   const m = (model || '').toLowerCase()

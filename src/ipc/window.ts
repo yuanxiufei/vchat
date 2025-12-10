@@ -9,7 +9,7 @@ import { registerGlobalShortcuts } from '../menu/globalShortcuts'
 import { CreateProvider } from '../providers/CreateProvider'
 import { readCfg, writeCfg, AppCfg } from './config'
 import { CreateChatProps, updatedStreamData } from '../types/appType'
-import { isModelSupported, pickFallbackModel, hasImage, supportsImage } from './support'
+import { isModelSupported, pickFallbackModel, hasImage, supportsImage, lastMessageHasImage } from './support'
 
 let isQuitting = false
 
@@ -297,13 +297,16 @@ export const createWindow = async () => {
           return
         }
       }
-      if (hasImage(messages) && !supportsImage(providerName, model)) {
+      if (lastMessageHasImage(messages) && !supportsImage(providerName, model)) {
         const content: updatedStreamData = { messageId, data: { is_end: true, result: '当前模型不支持图片解析' } };
         mainWindow.webContents.send('update-message', content)
         return
       }
       const provider = CreateProvider(providerName, opts)
-      const stream = await provider.chat(messages, model)
+      const safeMessages = supportsImage(providerName, model)
+        ? messages
+        : messages.map(m => ({ role: (m as any).role, content: (m as any).content }))
+      const stream = await provider.chat(safeMessages, model)
       if (preNote) {
         const content: updatedStreamData = { messageId, data: { is_end: false, result: preNote } };
         mainWindow.webContents.send('update-message', content)
