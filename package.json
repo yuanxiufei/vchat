@@ -2,8 +2,8 @@
   "name": "SmartChat",
   "productName": "SmartChat",
   "private": true,
-  "version": "1.0.5",
-  "description": "My Electron application description",
+  "version": "1.0.7",
+  "description": "本软件名称：智聊（跨平台 AI 桌面聊天应用），AI聚合工具「智聊」！桌面端集成百度、阿里、DeepSeek等多家AI模型，填个Key就能自由切换文心一言、通义千问～图文交互、多会话管理样样行！ 但它还不够完美～大家觉得界面、功能还有哪些可以优化的地方？比如想不想加更多模型？操作流程还能怎么简化？评论区甩建议，每一条我都认真看！一起把它打磨成真正的AI效率神器🚀",
   "repository": {
     "type": "git",
     "url": "https://github.com/yuanxiufei/SmartChat.git"
