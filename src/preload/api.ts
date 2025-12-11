@@ -22,6 +22,8 @@ export const electronAPI = {
   onMenuOpenSettings: (cb: () => void) => ipcRenderer.on('menu:open-settings', () => cb()),
   quitApp: () => ipcRenderer.invoke('app:quit'),
   checkForUpdates: () => ipcRenderer.invoke('app:check-update'),
+  installUpdate: () => ipcRenderer.invoke('app:install-update'),
+  cancelUpdate: () => ipcRenderer.invoke('app:cancel-update'),
   onUpdateStatus: (cb: (payload: any) => void) => {
     const handler = (_e: any, payload: any) => cb(payload)
     ipcRenderer.on('update:status', handler)

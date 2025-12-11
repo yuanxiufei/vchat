@@ -134,6 +134,7 @@
               type="button"
               class="px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
               @click="checkUpdate"
+              :disabled="isChecking"
             >
               {{ t("check_update") }}
             </button>
@@ -1342,6 +1343,9 @@
               :style="{ width: `${Math.round(updatePercent)}%` }"
             />
           </div>
+          <div class="text-xs text-gray-500 mt-1" v-if="updateSpeed > 0">
+            {{ t('update_speed') }}: {{ updateSpeedText }}
+          </div>
           <div
             id="update-desc"
             class="text-xs text-gray-500 mt-2"
@@ -1353,10 +1357,19 @@
               <button
                 class="px-3 py-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-gray-300"
                 type="button"
+                @click="cancelUpdate"
               >
                 {{ t("cancel") }}
               </button>
             </DialogClose>
+            <button
+              v-if="canInstall"
+              class="px-3 py-1 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700"
+              type="button"
+              @click="installUpdate"
+            >
+              {{ t('install_now') }}
+            </button>
           </div>
         </DialogContent>
       </DialogPortal>
@@ -1424,9 +1437,18 @@ const language = ref("zh-CN");
 // 全局字号：通过 applyFont 应用到根元素，影响整体缩放
 const fontSize = ref(14);
 const activeTab = ref<"general" | "models" | "guide" | "disclaimer">("general");
-const isEN = computed(() => language.value === "en-US");
-const showUpdate = ref(false)
-const updatePercent = ref(0)
+  const isEN = computed(() => language.value === "en-US");
+  const showUpdate = ref(false)
+  const updatePercent = ref(0)
+  const updateSpeed = ref(0)
+  const updateSpeedText = computed(() => {
+    const s = Number(updateSpeed.value) || 0
+    if (s >= 1024 * 1024) return `${(s / 1024 / 1024).toFixed(2)} MB/s`
+    if (s >= 1024) return `${(s / 1024).toFixed(1)} KB/s`
+    return `${s} B/s`
+  })
+  const isChecking = ref(false)
+  const canInstall = ref(false)
 const imgOpenaiSrc = computed(() => (isEN.value ? imgOpenaiEn : imgOpenai));
 const imgDeepseekSrc = computed(() =>
   isEN.value ? imgDeepseekEn : imgDeepseek
@@ -1502,34 +1524,70 @@ async function resetGeneral() {
   showToast("reset_done");
 }
 function checkUpdate() {
-  (window as any).electronAPI.checkForUpdates();
-  showToast("update_check_triggered");
+  if (isChecking.value) return
+  isChecking.value = true
+  ;(window as any).electronAPI.checkForUpdates()
+  showToast("update_check_triggered")
+}
+async function installUpdate() {
+  try { await (window as any).electronAPI.installUpdate() } catch {}
+}
+async function cancelUpdate() {
+  try { await (window as any).electronAPI.cancelUpdate() } catch {}
+  isChecking.value = false
+  canInstall.value = false
+  showUpdate.value = false
+  updatePercent.value = 0
+  updateSpeed.value = 0
 }
 onMounted(() => {
   try {
     (window as any).electronAPI.onUpdateStatus((p: any) => {
       if (!p || !p.type) return
       if (p.type === 'checking') {
+        isChecking.value = true
+        canInstall.value = false
         showToast('update_checking')
       } else if (p.type === 'skipped-dev') {
+        isChecking.value = false
+        canInstall.value = false
         showToast('update_dev_skip')
         showUpdate.value = false
       } else if (p.type === 'none') {
+        isChecking.value = false
+        canInstall.value = false
         showToast('update_latest')
         showUpdate.value = false
       } else if (p.type === 'available') {
+        isChecking.value = true
+        canInstall.value = false
         showToast('update_downloading')
         showUpdate.value = true
         updatePercent.value = 0
+        updateSpeed.value = 0
       } else if (p.type === 'progress') {
+        isChecking.value = true
+        canInstall.value = false
         showUpdate.value = true
         updatePercent.value = Math.max(0, Math.min(100, Number(p.percent || 0)))
+        updateSpeed.value = Number(p.bytesPerSecond || 0)
       } else if (p.type === 'downloaded') {
+        isChecking.value = false
+        canInstall.value = true
         showToast('update_downloaded')
-        showUpdate.value = false
+        showUpdate.value = true
+        updatePercent.value = 100
       } else if (p.type === 'error') {
+        isChecking.value = false
+        canInstall.value = false
         showToast('update_error')
         showUpdate.value = false
+      } else if (p.type === 'cancelled') {
+        isChecking.value = false
+        canInstall.value = false
+        showUpdate.value = false
+        updatePercent.value = 0
+        updateSpeed.value = 0
       }
     })
   } catch {}

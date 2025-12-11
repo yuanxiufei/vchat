@@ -111,6 +111,7 @@
   ,"update_progress":"Download progress"
   ,"update_speed":"Download speed"
   ,"update_install_hint":"Update will install after download or prompt to restart"
+  ,"install_now":"Install Now"
   ,"disclaimer_tab":"Disclaimer"
   ,"disclaimer_title":"Disclaimer"
   ,"disclaimer_bullet_1":"This software is provided \"as is\" and, to the maximum extent permitted by law, disclaims all warranties, express or implied, including but not limited to merchantability, fitness for a particular purpose, title, and non-infringement."

@@ -111,6 +111,7 @@
   ,"update_progress":"下载进度"
   ,"update_speed":"下载速度"
   ,"update_install_hint":"下载完成后将自动安装或提示重启"
+  ,"install_now":"立即安装"
   ,"disclaimer_tab":"免责声明"
   ,"disclaimer_title":"免责声明"
   ,"disclaimer_bullet_1":"本软件按“现状”提供，在适用法律允许的最大范围内，明确否认任何明示或暗示担保，包括但不限于适销性、特定用途适用性、所有权与不侵权。"

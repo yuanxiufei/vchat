@@ -97,3 +97,6 @@ out/
 
 # Local config template (do not track runtime changes)
 src/utils/config.json
+release/
+dist/
+.env

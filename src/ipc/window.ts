@@ -12,6 +12,7 @@ import { CreateChatProps, updatedStreamData } from '../types/appType'
 import { isModelSupported, pickFallbackModel, hasImage, supportsImage, lastMessageHasImage } from './support'
 
 let isQuitting = false
+let updateInProgress = false
 
 export const createWindow = async () => {
   const isWin = process.platform === 'win32'
@@ -87,18 +88,26 @@ export const createWindow = async () => {
 
   try {
     autoUpdater.on('error', (e) => {
+      updateInProgress = false
       try { mainWindow.webContents.send('update:status', { type: 'error', message: (e as any)?.message || String(e) }) } catch {}
     })
+    autoUpdater.on('checking-for-update', () => {
+      updateInProgress = true
+      try { mainWindow.webContents.send('update:status', { type: 'checking' }) } catch {}
+    })
     autoUpdater.on('update-available', (info) => {
+      updateInProgress = true
       try { mainWindow.webContents.send('update:status', { type: 'available', info }) } catch {}
     })
     autoUpdater.on('update-not-available', (info) => {
+      updateInProgress = false
       try { mainWindow.webContents.send('update:status', { type: 'none', info }) } catch {}
     })
     autoUpdater.on('download-progress', (p) => {
       try { mainWindow.webContents.send('update:status', { type: 'progress', percent: (p as any)?.percent, bytesPerSecond: (p as any)?.bytesPerSecond }) } catch {}
     })
     autoUpdater.on('update-downloaded', (info) => {
+      updateInProgress = false
       try { mainWindow.webContents.send('update:status', { type: 'downloaded', info }) } catch {}
     })
   } catch {}
@@ -206,12 +215,42 @@ export const createWindow = async () => {
 
   ipcMain.handle('app:check-update', async () => {
     try {
+      if (updateInProgress) {
+        try { mainWindow.webContents.send('update:status', { type: 'checking' }) } catch {}
+        return false
+      }
       if (!app.isPackaged && !(autoUpdater as any).forceDevUpdateConfig) {
         try { mainWindow.webContents.send('update:status', { type: 'skipped-dev' }) } catch {}
         return false
       }
       try { mainWindow.webContents.send('update:status', { type: 'checking' }) } catch {}
-      await autoUpdater.checkForUpdatesAndNotify()
+      await autoUpdater.checkForUpdates()
+      updateInProgress = true
+      return true
+    } catch (e) {
+      try { mainWindow.webContents.send('update:status', { type: 'error', message: (e as any)?.message || String(e) }) } catch {}
+      return false
+    }
+  })
+
+  ipcMain.handle('app:install-update', async () => {
+    try {
+      autoUpdater.quitAndInstall()
+      return true
+    } catch (e) {
+      try { mainWindow.webContents.send('update:status', { type: 'error', message: (e as any)?.message || String(e) }) } catch {}
+      return false
+    }
+  })
+
+  ipcMain.handle('app:cancel-update', async () => {
+    try {
+      const anyUpdater = autoUpdater as any
+      if (typeof anyUpdater.cancelDownload === 'function') {
+        anyUpdater.cancelDownload()
+      }
+      updateInProgress = false
+      try { mainWindow.webContents.send('update:status', { type: 'cancelled' }) } catch {}
       return true
     } catch (e) {
       try { mainWindow.webContents.send('update:status', { type: 'error', message: (e as any)?.message || String(e) }) } catch {}

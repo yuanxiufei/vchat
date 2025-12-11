@@ -2,7 +2,7 @@
   "name": "SmartChat",
   "productName": "SmartChat",
   "private": true,
-  "version": "1.0.7",
+  "version": "1.1.2",
   "description": "本软件名称：智聊（跨平台 AI 桌面聊天应用），AI聚合工具「智聊」！桌面端集成百度、阿里、DeepSeek等多家AI模型，填个Key就能自由切换文心一言、通义千问～图文交互、多会话管理样样行！ 但它还不够完美～大家觉得界面、功能还有哪些可以优化的地方？比如想不想加更多模型？操作流程还能怎么简化？评论区甩建议，每一条我都认真看！一起把它打磨成真正的AI效率神器🚀",
   "repository": {
     "type": "git",
@@ -19,7 +19,10 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx,.vue ."
+    "lint": "eslint --ext .ts,.tsx,.vue .",
+    "build:prep": "electron-forge package",
+    "build:win": "pnpm run build:prep && powershell -NoProfile -Command \"$env:ELECTRON_BUILDER_BINARIES_MIRROR='https://npmmirror.com/mirrors/electron-builder-binaries/'; pnpm exec electron-builder --win --publish never\"",
+    "publish:win": "pnpm run build:prep && powershell -NoProfile -Command \"$env:GH_TOKEN=(Get-Content .env | Where-Object { $_ -match '^GH_TOKEN=' } | Select-Object -First 1 | ForEach-Object { $_.Split('=')[1] }); $env:ELECTRON_BUILDER_BINARIES_MIRROR='https://npmmirror.com/mirrors/electron-builder-binaries/'; pnpm exec electron-builder --win --publish always\""
   },
   "keywords": [],
   "author": {
@@ -48,7 +51,9 @@
     "@typescript-eslint/parser": "^8.10.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "autoprefixer": "^10.4.21",
+    "dotenv-cli": "^7.4.4",
     "electron": "^35.7.2",
+    "electron-builder": "^24.13.3",
     "eslint": "^9.13.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-vue": "^9.20.1",
@@ -81,6 +86,7 @@
     "dexie": "^4.0.11",
     "dotenv": "^17.2.1",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.1.7",
     "katex": "^0.16.25",
     "mermaid": "^11.12.1",
     "mime-types": "^3.0.2",
@@ -91,10 +97,40 @@
     "shiki": "^3.15.0",
     "stream-monaco": "^0.0.6",
     "update-electron-app": "^3.1.2",
-    "electron-updater": "^6.1.7",
     "vue": "^3.5.13",
     "vue-i18n": "^11.2.2",
     "vue-renderer-markdown": "0.0.63-beta.0",
     "vue-router": "^4.5.1"
+  },
+  "build": {
+    "appId": "com.smartchat.app",
+    "productName": "SmartChat",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      ".vite/**",
+      "node_modules/**",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "artifactName": "${productName}-${version}-${arch}.exe"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "yuanxiufei",
+        "repo": "SmartChat",
+        "releaseType": "release"
+      }
+    ]
   }
 }
