@@ -56,7 +56,7 @@ export const createWindow = async () => {
   })
 
   const trayIconName = isWin ? 'logo.ico' : 'logo.png'
-  const trayIconPath = pickPath(isWin ? 'logo.png' : trayIconName)
+  const trayIconPath = pickPath(trayIconName)
   let trayImage = nativeImage.createFromPath(trayIconPath)
   if (!trayImage || trayImage.isEmpty()) {
     const altPng = pickPath('logo.png')

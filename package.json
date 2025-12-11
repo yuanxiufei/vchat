@@ -114,15 +114,27 @@
       "package.json"
     ],
     "asar": true,
+    "extraResources": [
+      { "from": "src/styles/logo", "to": "logo" }
+    ],
     "win": {
+      "icon": "src/styles/logo/logo.ico",
       "target": "nsis",
       "artifactName": "${productName}-${version}-${arch}.exe"
+    },
+    "mac": {
+      "icon": "src/styles/logo/logo.icns"
+    },
+    "linux": {
+      "icon": "src/styles/logo/logo.png"
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
       "allowElevation": true,
-      "allowToChangeInstallationDirectory": false
+      "allowToChangeInstallationDirectory": false,
+      "installerIcon": "src/styles/logo/logo.ico",
+      "uninstallerIcon": "src/styles/logo/logo.ico"
     },
     "publish": [
       {
